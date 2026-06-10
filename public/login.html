@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuditPilot — Sign In</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0A1F44;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Navbar ── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: #0A1F44;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-text { display: flex; flex-direction: column; }
+    .nav-logo-name { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 0.3px; line-height: 1; }
+    .nav-logo-sub  { color: #C9A84C; font-size: 7px; font-weight: 500; letter-spacing: 2.5px; margin-top: 3px; }
+    .nav-back { color: rgba(255,255,255,0.45); font-size: 13px; text-decoration: none; }
+    .nav-back:hover { color: rgba(255,255,255,0.75); }
+
+    /* ── Main layout ── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+    }
+
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #0D2352;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 36px;
+    }
+
+    /* ── Tab switcher ── */
+    .tabs {
+      display: flex;
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      font-family: inherit;
+      background: transparent;
+      color: rgba(255,255,255,0.45);
+    }
+    .tab-btn.active {
+      background: #C9A84C;
+      color: #0A1F44;
+    }
+
+    /* ── Form heading ── */
+    .form-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .form-subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    .field input {
+      width: 100%;
+      height: 44px;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      padding: 0 14px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: #C9A84C; }
+    .field input::placeholder { color: rgba(255,255,255,0.25); }
+    .field input.error { border-color: #e05555; }
+
+    /* ── Submit button ── */
+    .submit-btn {
+      width: 100%;
+      height: 46px;
+      background: #C9A84C;
+      border: none;
+      border-radius: 8px;
+      color: #0A1F44;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+      transition: background 0.15s, opacity 0.15s;
+      margin-top: 4px;
+    }
+    .submit-btn:hover    { background: #b8922e; }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Error / success messages ── */
+    .msg {
+      display: none;
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .msg.error   { display: block; background: rgba(220,38,38,.15); border: 1px solid rgba(220,38,38,.35); color: #fca5a5; }
+    .msg.success { display: block; background: rgba(22,163,74,.15); border: 1px solid rgba(22,163,74,.35); color: #86efac; }
+
+    /* ── Spinner inside button ── */
+    .btn-inner { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-spinner {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(10,31,68,0.3);
+      border-top-color: #0A1F44;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Divider ── */
+    .divider {
+      text-align: center;
+      color: rgba(255,255,255,0.2);
+      font-size: 11px;
+      margin: 20px 0 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="nav">
+    <a href="/" class="nav-logo" aria-label="AuditPilot home">
+      <svg width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M18 3L30 9L30 20Q30 29 18 33Q6 29 6 20L6 9Z" fill="#0A1F44"/>
+        <path d="M18 6L27 11L27 20Q27 27 18 31Q9 27 9 20L9 11Z" fill="#0D2D6B"/>
+        <path d="M18 9L25 13L25 20Q25 26 18 30Q11 26 11 20L11 13Z" fill="#1A3F8F"/>
+        <rect x="6" y="9" width="24" height="2" rx="1" fill="#C9A84C"/>
+        <path d="M12 19.5L16 24L24 14" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="nav-logo-text">
+        <span class="nav-logo-name">AuditPilot</span>
+        <span class="nav-logo-sub">EAA COMPLIANCE</span>
+      </div>
+    </a>
+    <a href="/" class="nav-back">← Back to scanner</a>
+  </nav>
+
+  <main>
+    <div class="card" role="main">
+
+      <!-- Login / Register tabs -->
+      <div class="tabs" role="tablist" aria-label="Authentication mode">
+        <button class="tab-btn active" id="tab-login"    role="tab" aria-selected="true"  onclick="switchTab('login')">Sign in</button>
+        <button class="tab-btn"        id="tab-register" role="tab" aria-selected="false" onclick="switchTab('register')">Create account</button>
+      </div>
+
+      <!-- Error / success banner -->
+      <div id="msg" class="msg" role="alert" aria-live="polite"></div>
+
+      <!-- ── Login form ── -->
+      <div id="form-login">
+        <h1 class="form-title">Welcome back</h1>
+        <p class="form-subtitle">Sign in to access your reports and account.</p>
+
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="login-email">Email address</label>
+            <input type="email" id="login-email" placeholder="you@agency.com" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+          <button type="submit" class="submit-btn" id="login-btn">
+            <span class="btn-inner">
+              <span class="btn-spinner" id="login-spinner"></span>
+              <span id="login-btn-text">Sign in</span>
+            </span>
+          </button>
+        </form>
+        <p class="divider">No account? <a href="#" onclick="switchTab('register')" style="color:#C9A84C;text-decoration:none;">Create one free →</a></p>
+      </div>
+
+      <!-- ── Register form ── -->
+      <div id="form-register" hidden>
+        <h1 class="form-title">Create your account</h1>
+        <p class="form-subtitle">Free plan — no credit card required.</p>
+
+        <form id="register-form" novalidate>
+          <div class="field">
+            <label for="reg-name">Full name</label>
+            <input type="text" id="reg-name" placeholder="Jane Smith" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="reg-email">Email address</label>
+            <input type="email" id="reg-email" placeholder="you@agency.com" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label for="reg-password">Password <span style="color:rgba(255,255,255,0.3);font-weight:400">(min 8 characters)</span></label>
+            <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password" required>
+          </div>
+          <button type="submit" class="submit-btn" id="register-btn">
+            <span class="btn-inner">
+              <span class="btn-spinner" id="register-spinner"></span>
+              <span id="register-btn-text">Create account</span>
+            </span>
+          </button>
+        </form>
+        <p class="divider">Already have an account? <a href="#" onclick="switchTab('login')" style="color:#C9A84C;text-decoration:none;">Sign in →</a></p>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // ── Tab switching ────────────────────────────────────────────────────────
+
+    function switchTab(tab) {
+      clearMsg();
+      const isLogin = tab === 'login';
+
+      document.getElementById('tab-login').classList.toggle('active', isLogin);
+      document.getElementById('tab-register').classList.toggle('active', !isLogin);
+      document.getElementById('tab-login').setAttribute('aria-selected', isLogin);
+      document.getElementById('tab-register').setAttribute('aria-selected', !isLogin);
+
+      document.getElementById('form-login').hidden    = !isLogin;
+      document.getElementById('form-register').hidden = isLogin;
+    }
+
+    // ── Message helpers ──────────────────────────────────────────────────────
+
+    function showMsg(text, type) {
+      const el = document.getElementById('msg');
+      el.textContent = text;
+      el.className   = 'msg ' + type;
+    }
+
+    function clearMsg() {
+      const el = document.getElementById('msg');
+      el.className   = 'msg';
+      el.textContent = '';
+    }
+
+    function setLoading(formId, loading) {
+      const btn     = document.getElementById(formId + '-btn');
+      const spinner = document.getElementById(formId + '-spinner');
+      const text    = document.getElementById(formId + '-btn-text');
+      btn.disabled         = loading;
+      spinner.style.display = loading ? 'block' : 'none';
+      text.textContent     = loading
+        ? (formId === 'login' ? 'Signing in…' : 'Creating account…')
+        : (formId === 'login' ? 'Sign in' : 'Create account');
+    }
+
+    // ── Login ────────────────────────────────────────────────────────────────
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMsg();
+
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        showMsg('Please enter your email and password.', 'error');
+        return;
+      }
+
+      setLoading('login', true);
+      try {
+        const res  = await fetch('/api/auth/login', {
+          method:      'POST',
+          headers:     { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body:        JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showMsg(data.error || 'Login failed. Please try again.', 'error');
+          return;
+        }
+
+        showMsg('Signed in! Redirecting…', 'success');
+        setTimeout(() => { window.location.href = '/'; }, 800);
+
+      } catch {
+        showMsg('Network error. Please check your connection.', 'error');
+      } finally {
+        setLoading('login', false);
+      }
+    });
+
+    // ── Register ─────────────────────────────────────────────────────────────
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMsg();
+
+      const fullName = document.getElementById('reg-name').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+
+      if (!email || !password) {
+        showMsg('Email and password are required.', 'error');
+        return;
+      }
+      if (password.length < 8) {
+        showMsg('Password must be at least 8 characters.', 'error');
+        return;
+      }
+
+      setLoading('register', true);
+      try {
+        const res  = await fetch('/api/auth/register', {
+          method:      'POST',
+          headers:     { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body:        JSON.stringify({ email, password, fullName })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showMsg(data.error || 'Registration failed. Please try again.', 'error');
+          return;
+        }
+
+        showMsg('Account created! Redirecting…', 'success');
+        setTimeout(() => { window.location.href = '/'; }, 800);
+
+      } catch {
+        showMsg('Network error. Please check your connection.', 'error');
+      } finally {
+        setLoading('register', false);
+      }
+    });
+  </script>
+</body>
+</html>

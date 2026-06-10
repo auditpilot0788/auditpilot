@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120">
+  <path d="M44 14 L72 26 L72 56 Q72 78 44 90 Q16 78 16 56 L16 26 Z" fill="#0A1F44"/>
+  <path d="M44 20 L66 31 L66 56 Q66 74 44 84 Q22 74 22 56 L22 31 Z" fill="#0D2D6B"/>
+  <path d="M44 26 L62 35 L62 56 Q62 72 44 80 Q26 72 26 56 L26 35 Z" fill="#1A3F8F"/>
+  <rect x="16" y="26" width="56" height="2.5" rx="1" fill="#C9A84C"/>
+  <path d="M31 55 L39 65 L58 42" fill="none" stroke="#C9A84C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="90" y="18" width="1" height="84" rx="0.5" fill="#E2E6EE"/>
+  <text x="104" y="58" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#0A1F44" letter-spacing="0.5">AuditPilot</text>
+  <rect x="104" y="65" width="144" height="1.2" rx="0.6" fill="#C9A84C"/>
+  <text x="104" y="82" font-family="Arial, sans-serif" font-size="11" font-weight="500" letter-spacing="3.5" fill="#8A94A6">EAA COMPLIANCE</text>
+</svg>

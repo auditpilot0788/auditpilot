@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuditPilot — Pricing</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0A1F44;
+      color: #fff;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Navbar ── */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: #0A1F44;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-name { color: #fff; font-size: 15px; font-weight: 700; line-height: 1; }
+    .nav-logo-sub  { color: #C9A84C; font-size: 7px; font-weight: 500; letter-spacing: 2.5px; margin-top: 3px; }
+    .nav-links { display: flex; align-items: center; gap: 20px; }
+    .nav-link  { color: rgba(255,255,255,0.55); font-size: 13px; text-decoration: none; }
+    .nav-link:hover { color: #fff; }
+    .nav-cta   { background: #C9A84C; color: #0A1F44; font-size: 13px; font-weight: 700; padding: 8px 18px; border-radius: 6px; text-decoration: none; }
+
+    /* ── Hero text ── */
+    .hero {
+      text-align: center;
+      padding: 64px 24px 48px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.35);
+      border-radius: 20px; padding: 5px 14px; margin-bottom: 24px;
+      color: #C9A84C; font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+    }
+    .hero-title {
+      font-size: 38px; font-weight: 800; color: #fff;
+      letter-spacing: -1px; line-height: 1.15; margin-bottom: 12px;
+    }
+    .hero-title span { color: #C9A84C; }
+    .hero-sub {
+      font-size: 15px; color: rgba(255,255,255,0.5); max-width: 480px; margin: 0 auto;
+      line-height: 1.65;
+    }
+
+    /* ── Plan grid ── */
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .plan-card {
+      background: #0D2352;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.15s;
+    }
+    .plan-card:hover { transform: translateY(-2px); }
+
+    /* Agency highlight */
+    .plan-card.popular {
+      border-color: #C9A84C;
+      background: #0F2A60;
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -12px; left: 50%; transform: translateX(-50%);
+      background: #C9A84C; color: #0A1F44;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      padding: 4px 14px; border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* Current plan badge */
+    .current-badge {
+      position: absolute;
+      top: -12px; left: 50%; transform: translateX(-50%);
+      background: rgba(22,163,74,0.9); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      padding: 4px 14px; border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .plan-name  { font-size: 12px; font-weight: 700; color: #C9A84C; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+    .plan-price { font-size: 40px; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 4px; }
+    .plan-price sup { font-size: 18px; vertical-align: super; margin-right: 2px; }
+    .plan-price span { font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.4); }
+    .plan-scans { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 24px; }
+
+    .plan-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
+
+    .plan-features { list-style: none; flex: 1; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
+    .plan-features li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.4;
+    }
+    .plan-features li::before {
+      content: '✓'; color: #C9A84C; font-weight: 700; font-size: 12px;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .plan-features li.dim { color: rgba(255,255,255,0.3); }
+    .plan-features li.dim::before { color: rgba(255,255,255,0.2); }
+
+    .plan-btn {
+      display: block; width: 100%;
+      padding: 13px 0; border-radius: 9px; border: none;
+      font-size: 14px; font-weight: 700; letter-spacing: 0.3px;
+      cursor: pointer; font-family: inherit; text-align: center;
+      text-decoration: none; transition: opacity 0.15s, background 0.15s;
+    }
+    .plan-btn.primary   { background: #C9A84C; color: #0A1F44; }
+    .plan-btn.primary:hover  { background: #b8922e; }
+    .plan-btn.outline   { background: transparent; color: #C9A84C; border: 1.5px solid rgba(201,168,76,0.5); }
+    .plan-btn.outline:hover  { border-color: #C9A84C; background: rgba(201,168,76,0.06); }
+    .plan-btn.disabled  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.3); cursor: default; border: 1px solid rgba(255,255,255,0.1); }
+    .plan-btn:disabled  { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Loading spinner inside button ── */
+    .btn-spinner {
+      display: inline-block; width: 14px; height: 14px; margin-right: 8px;
+      border: 2px solid rgba(10,31,68,0.3); border-top-color: #0A1F44;
+      border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FAQ strip ── */
+    .faq {
+      text-align: center;
+      padding: 0 24px 64px;
+      color: rgba(255,255,255,0.35);
+      font-size: 13px;
+    }
+    .faq a { color: #C9A84C; text-decoration: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .plans { grid-template-columns: 1fr; max-width: 420px; }
+      .hero-title { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">
+      <svg width="32" height="32" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+        <path d="M18 3L30 9L30 20Q30 29 18 33Q6 29 6 20L6 9Z" fill="#0A1F44"/>
+        <path d="M18 6L27 11L27 20Q27 27 18 31Q9 27 9 20L9 11Z" fill="#0D2D6B"/>
+        <path d="M18 9L25 13L25 20Q25 26 18 30Q11 26 11 20L11 13Z" fill="#1A3F8F"/>
+        <rect x="6" y="9" width="24" height="2" rx="1" fill="#C9A84C"/>
+        <path d="M12 19.5L16 24L24 14" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div style="display:flex;flex-direction:column;">
+        <span class="nav-logo-name">AuditPilot</span>
+        <span class="nav-logo-sub">EAA COMPLIANCE</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Scanner</a>
+      <a href="/login.html" class="nav-link" id="nav-auth-link">Sign in</a>
+      <a href="/" class="nav-cta">Free audit →</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">Simple, transparent pricing</div>
+    <h1 class="hero-title">Plans for every agency.<br><span>No surprises.</span></h1>
+    <p class="hero-sub">Start free. Upgrade when your clients need more reports. Cancel any time.</p>
+  </div>
+
+  <!-- Plan cards -->
+  <div class="plans" id="plans-container">
+
+    <!-- Free -->
+    <div class="plan-card" id="card-free">
+      <div class="plan-name">Free</div>
+      <div class="plan-price"><sup>€</sup>0<span>/month</span></div>
+      <div class="plan-scans">3 scans per month</div>
+      <hr class="plan-divider">
+      <ul class="plan-features">
+        <li>3 accessibility scans / month</li>
+        <li>Full PDF report per scan</li>
+        <li>WCAG 2.1 AA compliance check</li>
+        <li>EAA Readiness Score</li>
+        <li>Accessibility statement template</li>
+        <li class="dim">White-label branding</li>
+        <li class="dim">Priority support</li>
+      </ul>
+      <a href="/login.html" class="plan-btn outline" id="btn-free">Get started free</a>
+    </div>
+
+    <!-- Starter -->
+    <div class="plan-card" id="card-starter">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price"><sup>€</sup>119<span>/month</span></div>
+      <div class="plan-scans">20 scans per month</div>
+      <hr class="plan-divider">
+      <ul class="plan-features">
+        <li>20 accessibility scans / month</li>
+        <li>Full PDF report per scan</li>
+        <li>WCAG 2.1 AA compliance check</li>
+        <li>EAA Readiness Score</li>
+        <li>Accessibility statement template</li>
+        <li>Element-level screenshots in report</li>
+        <li class="dim">White-label branding</li>
+      </ul>
+      <button class="plan-btn primary" id="btn-starter" onclick="startCheckout('starter', this)">
+        Start Starter Plan
+      </button>
+    </div>
+
+    <!-- Agency — highlighted -->
+    <div class="plan-card popular" id="card-agency">
+      <div class="popular-badge" id="popular-badge">MOST POPULAR</div>
+      <div class="plan-name">Agency</div>
+      <div class="plan-price"><sup>€</sup>299<span>/month</span></div>
+      <div class="plan-scans">Unlimited scans</div>
+      <hr class="plan-divider">
+      <ul class="plan-features">
+        <li>Unlimited scans</li>
+        <li>Full PDF report per scan</li>
+        <li>WCAG 2.1 AA compliance check</li>
+        <li>EAA Readiness Score</li>
+        <li>Accessibility statement template</li>
+        <li>Element-level screenshots in report</li>
+        <li>White-label branding</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="plan-btn primary" id="btn-agency" onclick="startCheckout('agency', this)">
+        Start Agency Plan
+      </button>
+    </div>
+
+  </div>
+
+  <p class="faq">
+    Questions? <a href="mailto:hello@auditpilot.io">hello@auditpilot.io</a> &nbsp;·&nbsp;
+    All plans include a 14-day money-back guarantee &nbsp;·&nbsp;
+    <a href="#" id="manage-billing-link" style="display:none">Manage billing →</a>
+  </p>
+
+  <script>
+    // ── Load current user and highlight their plan ────────────────────────────
+
+    let currentPlan = null;
+
+    async function loadUserPlan() {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!res.ok) return; // not logged in — show default state
+
+        const data = await res.json();
+        currentPlan = data.subscription?.plan || 'free';
+
+        // Update nav
+        document.getElementById('nav-auth-link').textContent = 'Dashboard';
+        document.getElementById('nav-auth-link').href = '/';
+
+        // Show "Manage billing" link for paid users
+        if (currentPlan !== 'free') {
+          document.getElementById('manage-billing-link').style.display = 'inline';
+        }
+
+        // Mark current plan and disable its button
+        markCurrentPlan(currentPlan);
+
+      } catch { /* offline or server error — show default */ }
+    }
+
+    function markCurrentPlan(plan) {
+      const cardMap = { free: 'card-free', starter: 'card-starter', agency: 'card-agency' };
+      const btnMap  = { free: 'btn-free',  starter: 'btn-starter',  agency: 'btn-agency'  };
+
+      const card = document.getElementById(cardMap[plan]);
+      const btn  = document.getElementById(btnMap[plan]);
+      if (!card || !btn) return;
+
+      // Remove "MOST POPULAR" badge from agency card if user is on it
+      if (plan === 'agency') {
+        const badge = document.getElementById('popular-badge');
+        if (badge) badge.style.display = 'none';
+      }
+
+      // Add "Current Plan" badge
+      const badge = document.createElement('div');
+      badge.className = 'current-badge';
+      badge.textContent = 'Current Plan';
+      card.appendChild(badge);
+
+      // Disable the button
+      btn.textContent = 'Current Plan';
+      btn.className   = 'plan-btn disabled';
+      btn.disabled    = true;
+
+      // Disable lower-tier buttons too (can't downgrade via checkout)
+      const tiers = ['free', 'starter', 'agency'];
+      const currentIndex = tiers.indexOf(plan);
+      tiers.slice(0, currentIndex).forEach(tier => {
+        const b = document.getElementById('btn-' + tier);
+        if (b) {
+          b.textContent = 'Downgrade';
+          b.className   = 'plan-btn disabled';
+          b.disabled    = true;
+        }
+      });
+    }
+
+    // ── Checkout ──────────────────────────────────────────────────────────────
+
+    async function startCheckout(plan, btn) {
+      // Redirect to login if not authenticated
+      try {
+        const authCheck = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!authCheck.ok) {
+          window.location.href = '/login.html?next=pricing';
+          return;
+        }
+      } catch {
+        window.location.href = '/login.html?next=pricing';
+        return;
+      }
+
+      const originalText = btn.textContent;
+      btn.disabled    = true;
+      btn.innerHTML   = `<span class="btn-spinner"></span>Redirecting to checkout…`;
+
+      try {
+        const res  = await fetch('/api/billing/create-checkout-session', {
+          method:      'POST',
+          headers:     { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body:        JSON.stringify({ plan })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error || 'Failed to start checkout. Please try again.');
+          btn.disabled  = false;
+          btn.textContent = originalText;
+          return;
+        }
+
+        window.location.href = data.checkoutUrl;
+
+      } catch {
+        alert('Network error. Please check your connection and try again.');
+        btn.disabled  = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    // ── Billing portal ────────────────────────────────────────────────────────
+
+    document.getElementById('manage-billing-link').addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        const res  = await fetch('/api/billing/portal', { credentials: 'include' });
+        const data = await res.json();
+        if (data.portalUrl) window.location.href = data.portalUrl;
+      } catch {
+        alert('Could not open billing portal. Please try again.');
+      }
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    loadUserPlan();
+  </script>
+</body>
+</html>

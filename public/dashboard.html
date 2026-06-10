@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuditPilot — Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0A1F44;
+      color: #fff;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Navbar ── */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 60px;
+      background: #071630;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky; top: 0; z-index: 200;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo-name { color: #fff; font-size: 15px; font-weight: 700; line-height: 1; }
+    .nav-logo-sub  { color: #C9A84C; font-size: 7px; font-weight: 500; letter-spacing: 2.5px; margin-top: 3px; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      color: rgba(255,255,255,0.5); font-size: 13px; padding: 6px 12px; border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-link:hover  { color: #fff; background: rgba(255,255,255,0.06); }
+    .nav-link.active { color: #fff; background: rgba(255,255,255,0.08); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+
+    /* User menu */
+    .user-menu { position: relative; }
+    .user-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 6px 10px 6px 6px;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .user-btn:hover { background: rgba(255,255,255,0.1); }
+    .avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #C9A84C; color: #0A1F44;
+      font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .user-email { font-size: 12px; color: rgba(255,255,255,0.7); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chevron { color: rgba(255,255,255,0.35); font-size: 10px; margin-left: 2px; transition: transform 0.15s; }
+    .user-menu.open .chevron { transform: rotate(180deg); }
+
+    .dropdown {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      background: #0D2352; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px; min-width: 180px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .user-menu.open .dropdown { display: block; }
+    .dd-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px; font-size: 13px; color: rgba(255,255,255,0.7);
+      cursor: pointer; transition: background 0.1s, color 0.1s;
+      border: none; background: none; width: 100%; text-align: left; font-family: inherit;
+    }
+    .dd-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .dd-item.danger:hover { background: rgba(220,38,38,0.12); color: #fca5a5; }
+    .dd-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 3px 0; }
+
+    /* ── Page layout ── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+
+    .page-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 24px; letter-spacing: -0.5px; }
+
+    /* ── Cards ── */
+    .card {
+      background: #0D2352; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 24px 28px; margin-bottom: 20px;
+    }
+    .card-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
+
+    /* ── Plan card ── */
+    .plan-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+    .plan-left { display: flex; align-items: center; gap: 12px; }
+    .plan-badge {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 20px;
+    }
+    .plan-badge.free    { background: rgba(255,255,255,0.1);  color: rgba(255,255,255,0.6); }
+    .plan-badge.starter { background: rgba(37,99,235,0.25);   color: #93c5fd; }
+    .plan-badge.agency  { background: rgba(201,168,76,0.2);   color: #C9A84C; }
+
+    .plan-usage { font-size: 14px; color: rgba(255,255,255,0.6); }
+    .plan-usage strong { color: #fff; font-size: 16px; }
+
+    .plan-bar-track { background: rgba(255,255,255,0.08); border-radius: 6px; height: 8px; overflow: hidden; margin-bottom: 10px; }
+    .plan-bar-fill  { height: 100%; border-radius: 6px; background: #C9A84C; transition: width 0.4s; }
+    .plan-bar-fill.full { background: #dc2626; }
+
+    .plan-reset { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+    .plan-action-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700;
+      cursor: pointer; border: none; font-family: inherit; transition: background 0.15s;
+    }
+    .plan-action-btn.gold    { background: #C9A84C; color: #0A1F44; }
+    .plan-action-btn.gold:hover   { background: #b8922e; }
+    .plan-action-btn.outline { background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15); }
+    .plan-action-btn.outline:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+
+    /* ── Scan box ── */
+    .scan-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .scan-input-wrap {
+      flex: 1; display: flex; align-items: center;
+      border: 1.5px solid rgba(201,168,76,0.4); border-radius: 9px;
+      background: rgba(255,255,255,0.05); overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .scan-input-wrap:focus-within { border-color: #C9A84C; }
+    .scan-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: #fff; font-size: 14px; padding: 0 16px; height: 46px; font-family: inherit;
+    }
+    .scan-input::placeholder { color: rgba(255,255,255,0.25); }
+    .scan-submit {
+      height: 46px; padding: 0 22px; background: #C9A84C; border: none;
+      color: #0A1F44; font-size: 13px; font-weight: 700; cursor: pointer;
+      font-family: inherit; white-space: nowrap; transition: background 0.15s;
+    }
+    .scan-submit:hover    { background: #b8922e; }
+    .scan-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .scan-meta { font-size: 12px; color: rgba(255,255,255,0.35); }
+    .scan-meta .remaining { color: #C9A84C; font-weight: 600; }
+
+    /* Scan status messages */
+    .scan-status { display: none; margin-top: 12px; font-size: 13px; padding: 10px 14px; border-radius: 8px; }
+    .scan-status.loading { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.6); }
+    .scan-status.error   { display: block; background: rgba(220,38,38,.14); border:1px solid rgba(220,38,38,.3); color: #fca5a5; }
+    .scan-status.success { display: flex; align-items: center; gap: 10px; background: rgba(22,163,74,.12); border:1px solid rgba(22,163,74,.25); color: #86efac; }
+    .spinner-sm {
+      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.15);
+      border-top-color: #C9A84C; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Scans table ── */
+    .scans-table { width: 100%; border-collapse: collapse; }
+    .scans-table th {
+      font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3);
+      text-transform: uppercase; letter-spacing: 1px; padding: 0 0 12px;
+      text-align: left; border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .scans-table td {
+      padding: 13px 0; font-size: 13px; color: rgba(255,255,255,0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle;
+    }
+    .scans-table tr:last-child td { border-bottom: none; }
+    .scans-table .url-cell {
+      color: #fff; font-weight: 500; max-width: 380px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .dl-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;
+      background: rgba(201,168,76,0.15); color: #C9A84C; border: 1px solid rgba(201,168,76,0.3);
+      text-decoration: none; transition: background 0.15s;
+    }
+    .dl-btn:hover { background: rgba(201,168,76,0.25); }
+    .no-report { font-size: 11px; color: rgba(255,255,255,0.2); }
+
+    .empty-state { text-align: center; padding: 40px 0; color: rgba(255,255,255,0.3); font-size: 13px; }
+    .empty-state strong { display: block; font-size: 15px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+
+    /* Loading skeleton */
+    .skeleton { background: rgba(255,255,255,0.06); border-radius: 4px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navbar ─────────────────────────────────────────────────── -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">
+      <svg width="30" height="30" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+        <path d="M18 3L30 9L30 20Q30 29 18 33Q6 29 6 20L6 9Z" fill="#0A1F44"/>
+        <path d="M18 6L27 11L27 20Q27 27 18 31Q9 27 9 20L9 11Z" fill="#0D2D6B"/>
+        <path d="M18 9L25 13L25 20Q25 26 18 30Q11 26 11 20L11 13Z" fill="#1A3F8F"/>
+        <rect x="6" y="9" width="24" height="2" rx="1" fill="#C9A84C"/>
+        <path d="M12 19.5L16 24L24 14" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div style="display:flex;flex-direction:column;">
+        <span class="nav-logo-name">AuditPilot</span>
+        <span class="nav-logo-sub">EAA COMPLIANCE</span>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <a href="/"          class="nav-link">Home</a>
+      <a href="/#scan-tool" class="nav-link">New Scan</a>
+      <a href="/dashboard"  class="nav-link active">Dashboard</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="user-menu" id="user-menu">
+        <button class="user-btn" onclick="toggleMenu()" aria-haspopup="true" aria-expanded="false" id="user-btn">
+          <div class="avatar" id="user-avatar">?</div>
+          <span class="user-email" id="user-email-display">Loading…</span>
+          <span class="chevron">▾</span>
+        </button>
+        <div class="dropdown" role="menu">
+          <a href="/pricing.html" class="dd-item" role="menuitem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            My Plan
+          </a>
+          <button class="dd-item" onclick="openBillingPortal()" role="menuitem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Billing
+          </button>
+          <hr class="dd-divider">
+          <button class="dd-item danger" onclick="logout()" role="menuitem">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Page ───────────────────────────────────────────────────── -->
+  <div class="page">
+    <h1 class="page-title">Dashboard</h1>
+
+    <!-- Plan Status Card -->
+    <div class="card" id="plan-card">
+      <div class="card-title">Plan &amp; Usage</div>
+      <div class="plan-row">
+        <div class="plan-left">
+          <span class="plan-badge free" id="plan-badge">FREE</span>
+          <span class="plan-usage" id="plan-usage">
+            <strong id="scans-used">–</strong> / <span id="scans-limit">–</span> scans this month
+          </span>
+        </div>
+        <button class="plan-action-btn gold" id="plan-action-btn" onclick="handlePlanAction()">
+          Upgrade to Agency →
+        </button>
+      </div>
+      <div class="plan-bar-track">
+        <div class="plan-bar-fill" id="plan-bar" style="width:0%"></div>
+      </div>
+      <p class="plan-reset" id="plan-reset">–</p>
+    </div>
+
+    <!-- Quick Scan -->
+    <div class="card">
+      <div class="card-title">New Scan</div>
+      <div class="scan-row">
+        <div class="scan-input-wrap">
+          <input type="url" class="scan-input" id="dash-url" placeholder="https://yourclient.com"
+            autocomplete="url" spellcheck="false" aria-label="Website URL to scan">
+        </div>
+        <button class="scan-submit" id="dash-scan-btn" onclick="runScan()">Generate Report</button>
+      </div>
+      <p class="scan-meta">
+        <span id="remaining-label" class="remaining">–</span> remaining this month
+      </p>
+      <div class="scan-status" id="scan-status"></div>
+    </div>
+
+    <!-- Recent Scans -->
+    <div class="card">
+      <div class="card-title">Recent Scans</div>
+      <div id="scans-container">
+        <!-- populated by JS -->
+        <div class="empty-state" id="scans-loading">
+          <span class="skeleton" style="display:inline-block;width:180px;height:14px;border-radius:4px">&nbsp;</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+
+  <script>
+    // ── State ─────────────────────────────────────────────────────────────────
+
+    let userData    = null;
+    let usageData   = null;
+    let currentPlan = 'free';
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+
+    async function init() {
+      // Redirect to login if not authenticated
+      try {
+        const r = await fetch('/api/auth/me', { credentials: 'include' });
+        if (r.status === 401) { window.location.href = '/login.html'; return; }
+        if (!r.ok) throw new Error('Server error');
+        userData = await r.json();
+      } catch {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      populateUser(userData);
+
+      // Fetch usage + scan history in parallel
+      const [usageRes, historyRes] = await Promise.allSettled([
+        fetch('/api/usage',         { credentials: 'include' }),
+        fetch('/api/scans/history', { credentials: 'include' })
+      ]);
+
+      if (usageRes.status === 'fulfilled' && usageRes.value.ok) {
+        usageData = await usageRes.value.json();
+        populateUsage(usageData);
+      }
+
+      if (historyRes.status === 'fulfilled' && historyRes.value.ok) {
+        const { scans } = await historyRes.value.json();
+        renderScansTable(scans);
+      } else {
+        renderScansTable([]);
+      }
+    }
+
+    // ── Populate helpers ──────────────────────────────────────────────────────
+
+    function populateUser(data) {
+      const email    = data.user.email || '';
+      const initials = email.slice(0, 2).toUpperCase();
+
+      document.getElementById('user-avatar').textContent        = initials;
+      document.getElementById('user-email-display').textContent = email;
+      document.title = `Dashboard — ${email}`;
+    }
+
+    function populateUsage(data) {
+      currentPlan = data.plan || 'free';
+
+      // Plan badge
+      const badge = document.getElementById('plan-badge');
+      badge.textContent = currentPlan.toUpperCase();
+      badge.className   = `plan-badge ${currentPlan}`;
+
+      // Counts
+      const used  = data.scansUsed  || 0;
+      const limit = data.scansLimit || 3;
+      const isUnlimited = limit >= 999999;
+
+      document.getElementById('scans-used').textContent  = used;
+      document.getElementById('scans-limit').textContent = isUnlimited ? '∞' : limit;
+
+      // Remaining
+      const remaining = isUnlimited ? '∞' : Math.max(0, limit - used);
+      document.getElementById('remaining-label').textContent =
+        isUnlimited ? 'Unlimited scans' : `${remaining} scan${remaining !== 1 ? 's' : ''}`;
+
+      // Progress bar
+      const pct  = isUnlimited ? 0 : Math.min(100, Math.round((used / limit) * 100));
+      const bar  = document.getElementById('plan-bar');
+      bar.style.width = pct + '%';
+      if (pct >= 100) bar.classList.add('full');
+
+      // Reset date
+      const periodEnd = data.periodEnd ? new Date(data.periodEnd) : null;
+      document.getElementById('plan-reset').textContent = periodEnd
+        ? `Resets on ${periodEnd.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`
+        : '';
+
+      // Plan action button
+      const actionBtn = document.getElementById('plan-action-btn');
+      if (currentPlan === 'free') {
+        actionBtn.textContent = 'Upgrade to Agency →';
+        actionBtn.className   = 'plan-action-btn gold';
+      } else {
+        actionBtn.textContent = 'Manage Billing →';
+        actionBtn.className   = 'plan-action-btn outline';
+      }
+    }
+
+    function renderScansTable(scans) {
+      const container = document.getElementById('scans-container');
+
+      if (!scans || scans.length === 0) {
+        container.innerHTML =
+          '<div class="empty-state"><strong>No scans yet</strong>Run your first audit using the box above.</div>';
+        return;
+      }
+
+      const rows = scans.map(s => {
+        const date    = new Date(s.scannedAt).toLocaleDateString('en-GB', {
+          day: 'numeric', month: 'short', year: 'numeric'
+        });
+        const hostname = (() => {
+          try { return new URL(s.scannedUrl).hostname; } catch { return s.scannedUrl; }
+        })();
+        const report = s.reportAvailable
+          ? `<a href="/reports/${encodeURIComponent(s.reportFilename)}" class="dl-btn" download>
+               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                 <polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/>
+                 <path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/>
+               </svg>
+               Download
+             </a>`
+          : '<span class="no-report">—</span>';
+
+        return `
+          <tr>
+            <td class="url-cell" title="${escHtml(s.scannedUrl)}">${escHtml(hostname)}</td>
+            <td>${escHtml(date)}</td>
+            <td>${report}</td>
+          </tr>`;
+      }).join('');
+
+      container.innerHTML = `
+        <table class="scans-table">
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Date</th>
+              <th>Report</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    // ── User menu ─────────────────────────────────────────────────────────────
+
+    function toggleMenu() {
+      const menu = document.getElementById('user-menu');
+      const btn  = document.getElementById('user-btn');
+      const open = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open);
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', e => {
+      const menu = document.getElementById('user-menu');
+      if (!menu.contains(e.target)) {
+        menu.classList.remove('open');
+        document.getElementById('user-btn').setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    async function logout() {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      window.location.href = '/';
+    }
+
+    async function openBillingPortal() {
+      const res  = await fetch('/api/billing/portal', { credentials: 'include' });
+      const data = await res.json();
+      if (data.portalUrl) window.location.href = data.portalUrl;
+      else alert(data.error || 'Could not open billing portal.');
+    }
+
+    function handlePlanAction() {
+      if (currentPlan === 'free') {
+        window.location.href = '/pricing.html';
+      } else {
+        openBillingPortal();
+      }
+    }
+
+    // ── Quick scan ────────────────────────────────────────────────────────────
+
+    async function runScan() {
+      const input = document.getElementById('dash-url');
+      const btn   = document.getElementById('dash-scan-btn');
+      const status = document.getElementById('scan-status');
+
+      let url = input.value.trim();
+      if (!url) { input.focus(); return; }
+      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+      try { new URL(url); }
+      catch {
+        showScanStatus('error', 'Please enter a valid URL — for example: https://example.com');
+        return;
+      }
+
+      btn.disabled = true;
+      showScanStatus('loading', 'Scanning… this takes 15–30 seconds');
+
+      try {
+        const response = await fetch('/scan', {
+          method:      'POST',
+          headers:     { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body:        JSON.stringify({ url })
+        });
+
+        if (response.status === 403) {
+          const data = await response.json().catch(() => ({}));
+          if (data.error === 'scan_limit_reached') {
+            const planLabel = data.plan && data.plan !== 'anonymous'
+              ? ` on the <strong>${data.plan}</strong> plan` : '';
+            showScanStatus('error',
+              `Scan limit reached — you've used all ${data.used} scan${data.used !== 1 ? 's' : ''} this month${planLabel}. ` +
+              `<a href="/pricing.html" style="color:#C9A84C;font-weight:700;">Upgrade →</a>`, true);
+            return;
+          }
+        }
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          showScanStatus('error', data.error || 'Scan failed. Please try again.');
+          return;
+        }
+
+        // Trigger PDF download
+        const blob     = await response.blob();
+        const blobUrl  = URL.createObjectURL(blob);
+        const a        = document.createElement('a');
+        a.href         = blobUrl;
+        a.download     = 'auditpilot-report.pdf';
+
+        const cd = response.headers.get('Content-Disposition');
+        if (cd) { const m = cd.match(/filename="([^"]+)"/); if (m) a.download = m[1]; }
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+
+        input.value = '';
+        showScanStatus('success', 'Report downloaded! Refreshing usage…');
+
+        // Refresh usage and history
+        const [uRes, hRes] = await Promise.allSettled([
+          fetch('/api/usage',         { credentials: 'include' }),
+          fetch('/api/scans/history', { credentials: 'include' })
+        ]);
+        if (uRes.status === 'fulfilled' && uRes.value.ok) populateUsage(await uRes.value.json());
+        if (hRes.status === 'fulfilled' && hRes.value.ok) { const { scans } = await hRes.value.json(); renderScansTable(scans); }
+
+        setTimeout(() => { status.style.display = 'none'; }, 4000);
+
+      } catch {
+        showScanStatus('error', 'Network error. Please check your connection and try again.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function showScanStatus(type, message, isHtml = false) {
+      const el = document.getElementById('scan-status');
+      el.className = 'scan-status ' + type;
+      if (type === 'loading') {
+        el.innerHTML = `<div class="spinner-sm"></div><span>${escHtml(message)}</span>`;
+      } else if (isHtml) {
+        el.innerHTML = message;
+      } else {
+        el.textContent = message;
+      }
+    }
+
+    // Enter key triggers scan
+    document.getElementById('dash-url').addEventListener('keydown', e => {
+      if (e.key === 'Enter') runScan();
+    });
+
+    // ── Utilities ─────────────────────────────────────────────────────────────
+
+    function escHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── Start ─────────────────────────────────────────────────────────────────
+    init();
+  </script>
+</body>
+</html>

@@ -3,150 +3,284 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AuditPilot — Client-Ready Accessibility Reports in 2 Minutes</title>
-  <meta name="description" content="Scan any website for accessibility issues and generate a professional PDF report your clients can act on. Powered by axe-core and WCAG 2.1 AA.">
+  <title>AuditPilot — EAA Compliance Reports in 2 Minutes</title>
+  <meta name="description" content="AuditPilot scans any website and generates a professional, client-ready PDF accessibility report with EAA readiness score. Built for digital agencies.">
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    /* ── Override base body/hero background to match new navy palette ── */
+    body { background: #0A1F44; }
+    .features { background: #0D1E3A; }
+    .features-title { color: #fff; }
+    .features-sub { color: rgba(255,255,255,0.45); }
+    .f-card { background: #0D2352; border-color: rgba(255,255,255,0.08); }
+    .f-title { color: #fff; }
+    .f-text  { color: rgba(255,255,255,0.45); }
+    .footer  { background: #060F22; }
+
+    /* ── Gold-tinted error box on dark background ── */
+    .error-box { background: rgba(220,38,38,.18); border-color: rgba(220,38,38,.4); }
+
+    /* ── Scan input overrides for new gold-border style ── */
+    #ap-input-row {
+      display: flex;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1.5px solid #C9A84C;
+      background: rgba(255,255,255,0.06);
+      margin-bottom: 12px;
+    }
+    #url-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 14px;
+      padding: 0 18px;
+      height: 54px;
+      font-family: inherit;
+    }
+    #url-input::placeholder { color: rgba(255,255,255,0.35); }
+    #scan-btn {
+      background: #C9A84C;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 0 28px;
+      height: 54px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      font-family: inherit;
+      transition: background 0.15s;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    #scan-btn:hover    { background: #b8922e; }
+    #scan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
 </head>
 <body>
 
-  <!-- ── Navigation ────────────────────────────────────────────── -->
-  <nav class="nav" role="navigation" aria-label="Main navigation">
-    <div class="nav-inner">
-      <div class="nav-brand" aria-label="AuditPilot">
-        <div class="nav-brand-icon" aria-hidden="true">AP</div>
-        <span class="nav-brand-name">AuditPilot</span>
+  <!-- ── Navbar ─────────────────────────────────────────────────── -->
+  <nav role="navigation" aria-label="Main navigation" style="
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: #0A1F44;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  ">
+    <!-- Logo -->
+    <div style="display:flex; align-items:center; gap:10px;">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M18 3L30 9L30 20Q30 29 18 33Q6 29 6 20L6 9Z" fill="#0A1F44"/>
+        <path d="M18 6L27 11L27 20Q27 27 18 31Q9 27 9 20L9 11Z" fill="#0D2D6B"/>
+        <path d="M18 9L25 13L25 20Q25 26 18 30Q11 26 11 20L11 13Z" fill="#1A3F8F"/>
+        <rect x="6" y="9" width="24" height="2" rx="1" fill="#C9A84C"/>
+        <path d="M12 19.5L16 24L24 14" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div style="display:flex; flex-direction:column;">
+        <span style="color:#fff; font-size:15px; font-weight:700; letter-spacing:0.3px; line-height:1;">AuditPilot</span>
+        <span style="color:#C9A84C; font-size:7px; font-weight:500; letter-spacing:2.5px; margin-top:3px;">EAA COMPLIANCE</span>
       </div>
-      <span class="nav-pill">Free MVP</span>
+    </div>
+
+    <!-- Nav links -->
+    <div style="display:flex; align-items:center; gap:24px;">
+      <a href="#how-it-works" style="color:rgba(255,255,255,0.55); font-size:13px; text-decoration:none;">How it works</a>
+      <a href="#pricing"      style="color:rgba(255,255,255,0.55); font-size:13px; text-decoration:none;">Pricing</a>
+      <a href="#agencies"     style="color:rgba(255,255,255,0.55); font-size:13px; text-decoration:none;">For agencies</a>
+      <a href="#scan-tool" id="nav-cta" style="background:#C9A84C; color:#0A1F44; font-size:13px; font-weight:700; padding:8px 18px; border-radius:6px; text-decoration:none;">Free audit →</a>
     </div>
   </nav>
 
-  <!-- ── Hero ──────────────────────────────────────────────────── -->
   <main>
-    <section class="hero" aria-labelledby="hero-heading">
-      <div class="hero-inner">
 
-        <div class="hero-eyebrow" aria-hidden="true">Powered by axe-core &bull; WCAG 2.0 / 2.1 AA</div>
+    <!-- ── Hero ───────────────────────────────────────────────────── -->
+    <section id="scan-tool" aria-labelledby="hero-heading" style="
+      text-align: center;
+      padding: 60px 40px 0;
+      background: #0A1F44;
+    ">
 
-        <h1 id="hero-heading" class="hero-title">
-          Generate Client-Ready<br>
-          <span class="hero-title-accent">Accessibility Reports</span><br>
-          in 2 Minutes
-        </h1>
+      <!-- EAA badge -->
+      <div aria-hidden="true" style="
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(201,168,76,0.12);
+        border: 1px solid rgba(201,168,76,0.35);
+        border-radius: 20px;
+        padding: 5px 14px;
+        margin-bottom: 32px;
+      ">
+        <div style="width:7px; height:7px; background:#C9A84C; border-radius:50%;"></div>
+        <span style="color:#C9A84C; font-size:11px; font-weight:600; letter-spacing:1.5px;">EAA ENFORCEMENT ACTIVE — JUNE 2025</span>
+      </div>
 
-        <p class="hero-subtitle">
-          Scan any website, get a professional PDF accessibility audit, and hand it
-          straight to your client. No setup. No subscriptions. Just results.
-        </p>
+      <!-- Headline -->
+      <h1 id="hero-heading" style="
+        color: #ffffff;
+        font-size: 42px;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 12px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      ">
+        Your clients need <span style="color:#C9A84C;">EAA compliance proof.</span><br>
+        Deliver it in 2 minutes.
+      </h1>
 
-        <!-- ── Scan card ─────────────────────────────────────── -->
-        <div class="scan-card" role="region" aria-label="Scan tool">
+      <!-- Subheadline -->
+      <p style="
+        color: rgba(255,255,255,0.55);
+        font-size: 16px;
+        line-height: 1.65;
+        max-width: 520px;
+        margin: 0 auto 36px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      ">
+        AuditPilot scans any website and generates a
+        <strong style="color:rgba(255,255,255,0.85); font-weight:500;">professional, client-ready PDF</strong>
+        — with accessibility scores, legal risk assessment, and an accessibility statement.
+        Built for digital agencies.
+      </p>
 
-          <!-- Form state -->
-          <div id="state-form">
-            <div class="input-row">
-              <div class="input-wrap">
-                <svg class="input-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-                </svg>
-                <input
-                  type="url"
-                  id="url-input"
-                  class="url-input"
-                  placeholder="https://example.com"
-                  autocomplete="url"
-                  spellcheck="false"
-                  aria-label="Website URL to scan"
-                  aria-describedby="url-hint"
-                >
-              </div>
-              <button id="scan-btn" class="scan-btn" type="button">
-                Generate Report
-              </button>
-            </div>
-            <p id="url-hint" class="input-hint">Enter any publicly accessible URL — scan takes 15–30 seconds</p>
-            <div id="error-box" class="error-box" role="alert" aria-live="polite" hidden></div>
+      <!-- ── Scan tool (state machine) ──────────────────────────── -->
+      <div role="region" aria-label="Website scan tool" style="max-width:580px; margin:0 auto;">
+
+        <!-- State: Form -->
+        <div id="state-form">
+          <div id="ap-input-row">
+            <input
+              type="url"
+              id="url-input"
+              placeholder="https://yourclient.com"
+              autocomplete="url"
+              spellcheck="false"
+              aria-label="Website URL to scan"
+              aria-describedby="url-hint"
+            >
+            <button id="scan-btn" type="button">Generate Report</button>
           </div>
+          <p id="url-hint" style="color:rgba(255,255,255,0.3); font-size:11px; letter-spacing:0.3px; margin-bottom:8px;">
+            No account needed · Scan completes in 15–30 seconds
+          </p>
+          <div id="error-box" class="error-box" role="alert" aria-live="polite" hidden></div>
+        </div>
 
-          <!-- Loading state -->
-          <div id="state-loading" class="state-loading" hidden aria-live="polite" aria-label="Scan in progress">
-            <div class="spinner" aria-hidden="true"></div>
-            <div class="loading-content">
-              <h2 class="loading-title">Scanning in progress…</h2>
-              <p id="loading-msg" class="loading-msg">Launching browser and loading page…</p>
-            </div>
-            <div class="progress-steps" role="list" aria-label="Progress steps">
-              <div class="p-step" id="ps-1" role="listitem">
-                <span class="p-dot" aria-hidden="true"></span>
-                <span>Launching browser</span>
-              </div>
-              <div class="p-step" id="ps-2" role="listitem">
-                <span class="p-dot" aria-hidden="true"></span>
-                <span>Running axe-core scan</span>
-              </div>
-              <div class="p-step" id="ps-3" role="listitem">
-                <span class="p-dot" aria-hidden="true"></span>
-                <span>Capturing screenshot</span>
-              </div>
-              <div class="p-step" id="ps-4" role="listitem">
-                <span class="p-dot" aria-hidden="true"></span>
-                <span>Generating PDF report</span>
-              </div>
-            </div>
+        <!-- State: Loading (unchanged — existing CSS classes handle styling) -->
+        <div id="state-loading" class="state-loading" hidden aria-live="polite" aria-label="Scan in progress">
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="loading-content">
+            <h2 class="loading-title">Scanning in progress…</h2>
+            <p id="loading-msg" class="loading-msg">Launching browser and loading page…</p>
           </div>
+          <div class="progress-steps" role="list" aria-label="Progress steps">
+            <div class="p-step" id="ps-1" role="listitem"><span class="p-dot" aria-hidden="true"></span><span>Launching browser</span></div>
+            <div class="p-step" id="ps-2" role="listitem"><span class="p-dot" aria-hidden="true"></span><span>Running axe-core scan</span></div>
+            <div class="p-step" id="ps-3" role="listitem"><span class="p-dot" aria-hidden="true"></span><span>Capturing screenshot</span></div>
+            <div class="p-step" id="ps-4" role="listitem"><span class="p-dot" aria-hidden="true"></span><span>Generating PDF report</span></div>
+          </div>
+        </div>
 
-          <!-- Success state -->
-          <div id="state-success" class="state-success" hidden aria-live="polite">
-            <div class="success-icon" aria-hidden="true">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
+        <!-- State: Success (unchanged) -->
+        <div id="state-success" class="state-success" hidden aria-live="polite">
+          <div class="success-icon" aria-hidden="true">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h2 class="success-title">Report Ready!</h2>
+          <p class="success-subtitle">Your accessibility audit report has been generated.</p>
+          <div id="score-strip" class="score-strip" aria-label="Scan result summary"></div>
+          <div class="success-actions">
+            <a id="download-link" class="download-btn" href="#" download>
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-            </div>
-            <h2 class="success-title">Report Ready!</h2>
-            <p class="success-subtitle">Your accessibility audit report has been generated.</p>
-
-            <div id="score-strip" class="score-strip" aria-label="Scan result summary"></div>
-
-            <div class="success-actions">
-              <a id="download-link" class="download-btn" href="#" download>
-                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Download PDF Report
-              </a>
-              <button id="reset-btn" class="reset-btn" type="button">Scan Another URL</button>
-            </div>
+              Download PDF Report
+            </a>
+            <button id="reset-btn" class="reset-btn" type="button">Scan Another URL</button>
           </div>
+        </div>
 
-        </div><!-- /scan-card -->
+      </div><!-- /scan tool -->
 
-        <!-- Trust signals -->
-        <ul class="trust-row" aria-label="Feature highlights">
-          <li class="trust-item">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            WCAG 2.1 AA Compliance Check
-          </li>
-          <li class="trust-item">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            Full-Page Screenshot Included
-          </li>
-          <li class="trust-item">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            Client-Ready PDF Output
-          </li>
-          <li class="trust-item">
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            No Account Required
-          </li>
-        </ul>
+      <!-- Trust bar -->
+      <div aria-label="Feature highlights" style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        padding: 28px 32px;
+        border-top: 1px solid rgba(255,255,255,0.07);
+        margin-top: 24px;
+        flex-wrap: wrap;
+      ">
+        <div style="display:flex; align-items:center; gap:7px; color:rgba(255,255,255,0.45); font-size:12px;">
+          <span style="color:#C9A84C;">✓</span> WCAG 2.1 AA scan
+        </div>
+        <div style="display:flex; align-items:center; gap:7px; color:rgba(255,255,255,0.45); font-size:12px;">
+          <span style="color:#C9A84C;">✓</span> 8-page professional PDF
+        </div>
+        <div style="display:flex; align-items:center; gap:7px; color:rgba(255,255,255,0.45); font-size:12px;">
+          <span style="color:#C9A84C;">✓</span> EAA Readiness Score
+        </div>
+        <div style="display:flex; align-items:center; gap:7px; color:rgba(255,255,255,0.45); font-size:12px;">
+          <span style="color:#C9A84C;">✓</span> No data stored
+        </div>
+      </div>
 
-      </div><!-- /hero-inner -->
+    </section><!-- /hero -->
+
+    <!-- ── Three feature cards ─────────────────────────────────── -->
+    <section aria-label="Why AuditPilot" style="
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,0.07);
+      border-top: 1px solid rgba(255,255,255,0.07);
+    ">
+      <div style="background:#0D2352; padding:24px 28px;">
+        <div style="color:#C9A84C; font-size:11px; font-weight:700; letter-spacing:2px; margin-bottom:10px;">01</div>
+        <div style="color:#fff; font-size:15px; font-weight:700; margin-bottom:6px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">Compliance evidence — not a bug list</div>
+        <div style="color:rgba(255,255,255,0.45); font-size:12px; line-height:1.6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+          Unlike Axe or Lighthouse, AuditPilot produces a client-deliverable document
+          your agency can send directly to procurement or legal teams.
+        </div>
+      </div>
+      <div style="background:#0D2352; padding:24px 28px;">
+        <div style="color:#C9A84C; font-size:11px; font-weight:700; letter-spacing:2px; margin-bottom:10px;">02</div>
+        <div style="color:#fff; font-size:15px; font-weight:700; margin-bottom:6px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">EAA Readiness Score — unique to AuditPilot</div>
+        <div style="color:rgba(255,255,255,0.45); font-size:12px; line-height:1.6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+          A dedicated score showing how ready the site is for European Accessibility Act
+          requirements — not just generic WCAG errors.
+        </div>
+      </div>
+      <div style="background:#0D2352; padding:24px 28px;">
+        <div style="color:#C9A84C; font-size:11px; font-weight:700; letter-spacing:2px; margin-bottom:10px;">03</div>
+        <div style="color:#fff; font-size:15px; font-weight:700; margin-bottom:6px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">Accessibility statement — ready to publish</div>
+        <div style="color:rgba(255,255,255,0.45); font-size:12px; line-height:1.6; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+          Every report includes a legally-structured accessibility statement template
+          your client can publish on their website immediately.
+        </div>
+      </div>
     </section>
 
-    <!-- ── Features ──────────────────────────────────────────────── -->
-    <section class="features" aria-labelledby="features-heading">
+    <!-- ── Full report contents breakdown ─────────────────────── -->
+    <section class="features" aria-labelledby="features-heading" id="how-it-works">
       <div class="features-inner">
         <h2 id="features-heading" class="features-title">Everything in Every Report</h2>
         <p class="features-sub">Professional, comprehensive, and client-ready — every time.</p>
@@ -154,81 +288,99 @@
         <div class="features-grid">
 
           <article class="f-card">
-            <div class="f-icon" style="--c:rgba(233,69,96,.12);--ic:#e94560">
+            <div class="f-icon" style="--c:rgba(201,168,76,.15);--ic:#C9A84C">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
               </svg>
             </div>
             <h3 class="f-title">Cover Page</h3>
-            <p class="f-text">Branded cover with score, status badge, and a live screenshot of the audited website.</p>
+            <p class="f-text">Branded cover with accessibility score, EAA readiness score, and a live screenshot of the audited website.</p>
           </article>
 
           <article class="f-card">
-            <div class="f-icon" style="--c:rgba(37,99,235,.12);--ic:#2563eb">
+            <div class="f-icon" style="--c:rgba(37,99,235,.15);--ic:#4d7de8">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M18 20V10M12 20V4M6 20v-6"/>
               </svg>
             </div>
             <h3 class="f-title">Executive Summary</h3>
-            <p class="f-text">At-a-glance score, issue breakdown by severity, and a clear status indicator.</p>
+            <p class="f-text">Score, issue breakdown by severity, remediation effort estimate, and top priority fixes.</p>
           </article>
 
           <article class="f-card">
-            <div class="f-icon" style="--c:rgba(220,38,38,.12);--ic:#dc2626">
+            <div class="f-icon" style="--c:rgba(220,38,38,.15);--ic:#e05555">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
             </div>
             <h3 class="f-title">Detailed Findings</h3>
-            <p class="f-text">Every issue listed with description, WCAG guidance link, and affected element count.</p>
+            <p class="f-text">Every issue with structured explanations, developer code examples, and affected element screenshots.</p>
           </article>
 
           <article class="f-card">
-            <div class="f-icon" style="--c:rgba(234,88,12,.12);--ic:#ea580c">
+            <div class="f-icon" style="--c:rgba(201,168,76,.15);--ic:#C9A84C">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
             </div>
-            <h3 class="f-title">Business Impact</h3>
-            <p class="f-text">Legal, revenue, and UX impact — written in plain language for non-technical clients.</p>
+            <h3 class="f-title">Compliance Dashboard</h3>
+            <p class="f-text">WCAG 2.1 AA alignment, EAA readiness, and estimated legal risk level — in one section.</p>
           </article>
 
           <article class="f-card">
-            <div class="f-icon" style="--c:rgba(217,119,6,.12);--ic:#d97706">
+            <div class="f-icon" style="--c:rgba(37,99,235,.15);--ic:#4d7de8">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
               </svg>
             </div>
-            <h3 class="f-title">Next Steps</h3>
-            <p class="f-text">Prioritised remediation checklist tailored to the specific issues found.</p>
+            <h3 class="f-title">Dynamic Next Steps</h3>
+            <p class="f-text">Prioritised remediation steps generated from the exact violations found — not generic advice.</p>
           </article>
 
           <article class="f-card">
-            <div class="f-icon" style="--c:rgba(22,163,74,.12);--ic:#16a34a">
+            <div class="f-icon" style="--c:rgba(22,163,74,.15);--ic:#22a35a">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
               </svg>
             </div>
             <h3 class="f-title">Statement Template</h3>
-            <p class="f-text">Ready-to-publish accessibility statement with placeholder fields for the client.</p>
+            <p class="f-text">Ready-to-publish accessibility statement with placeholder fields your client can fill in and publish.</p>
           </article>
 
         </div>
       </div>
     </section>
+
   </main>
 
-  <!-- ── Footer ────────────────────────────────────────────────── -->
+  <!-- ── Footer ─────────────────────────────────────────────────── -->
   <footer class="footer">
     <div class="footer-inner">
       <div>
         <div class="footer-brand">AuditPilot</div>
-        <div class="footer-tag">Generate client-ready accessibility reports in 2 minutes</div>
+        <div class="footer-tag">EAA compliance reports for digital agencies</div>
       </div>
-      <div class="footer-note">Powered by axe-core &bull; WCAG 2.0/2.1 AA &bull; Built for web agencies</div>
+      <div class="footer-note">Powered by axe-core &bull; WCAG 2.0/2.1 AA &bull; EAA Ready</div>
     </div>
   </footer>
 
   <script src="app.js"></script>
+  <script>
+    // Global bridge so any onclick="handleScan()" call works
+    function handleScan() {
+      document.getElementById('scan-btn').click();
+    }
+
+    // If the user is already logged in, swap "Free audit →" for "Dashboard →"
+    (async function checkAuthState() {
+      try {
+        const r = await fetch('/api/auth/me', { credentials: 'include' });
+        if (r.ok) {
+          const cta = document.getElementById('nav-cta');
+          if (cta) { cta.textContent = 'Dashboard →'; cta.href = '/dashboard'; }
+        }
+      } catch { /* offline or server not ready — leave default */ }
+    })();
+  </script>
 </body>
 </html>

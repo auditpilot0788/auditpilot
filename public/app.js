@@ -150,6 +150,21 @@
     urlInput.focus();
   }
 
+  // ── Scan limit error ─────────────────────────────────────────────────────────
+
+  function showLimitError(used, limit, plan) {
+    const planLabel = plan && plan !== 'anonymous' ? ` on the <strong>${plan}</strong> plan` : '';
+    const limitNote = limit === 1 && plan === 'anonymous'
+      ? 'Anonymous users can run 1 free scan per day.'
+      : `You've used all ${used} scan${used !== 1 ? 's' : ''} this month${planLabel}.`;
+
+    errorBox.innerHTML =
+      `<strong>Scan limit reached</strong><br>${limitNote}<br>` +
+      `<a href="/pricing.html" style="color:#C9A84C;font-weight:700;display:inline-block;margin-top:6px;">` +
+      `Upgrade for more scans →</a>`;
+    errorBox.hidden = false;
+  }
+
   // ── Scan ────────────────────────────────────────────────────────────────────
 
   async function startScan() {
@@ -171,18 +186,27 @@
 
     try {
       const response = await fetch('/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: normalized })
+        method:      'POST',
+        headers:     { 'Content-Type': 'application/json' },
+        credentials: 'include',   // send auth cookie so the server knows the user's plan
+        body:        JSON.stringify({ url: normalized })
       });
 
       if (!response.ok) {
-        let msg = 'The scan failed. Please try again.';
-        try {
-          const data = await response.json();
-          if (data && data.error) msg = data.error;
-        } catch { /* body not JSON */ }
-        throw new Error(msg);
+        let data = null;
+        try { data = await response.json(); } catch { /* body not JSON */ }
+
+        // Scan limit reached — show upgrade prompt instead of generic error
+        if (response.status === 403 && data?.error === 'scan_limit_reached') {
+          clearInterval(stepTimer);
+          stateLoad.hidden = true;
+          stateForm.hidden = false;
+          scanBtn.disabled = false;
+          showLimitError(data.used, data.limit, data.plan);
+          return;
+        }
+
+        throw new Error(data?.error || 'The scan failed. Please try again.');
       }
 
       // Parse score metadata from the response header
