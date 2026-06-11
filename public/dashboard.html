@@ -204,8 +204,10 @@
     </a>
 
     <div class="nav-links">
-      <a href="/"          class="nav-link">Home</a>
+      <a href="/"           class="nav-link">Home</a>
       <a href="/#scan-tool" class="nav-link">New Scan</a>
+      <a href="/pricing"    class="nav-link">Pricing</a>
+      <a href="/agencies"   class="nav-link">For agencies</a>
       <a href="/dashboard"  class="nav-link active">Dashboard</a>
     </div>
 
@@ -217,7 +219,7 @@
           <span class="chevron">▾</span>
         </button>
         <div class="dropdown" role="menu">
-          <a href="/pricing.html" class="dd-item" role="menuitem">
+          <a href="/pricing" class="dd-item" role="menuitem">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
             My Plan
           </a>
@@ -464,7 +466,7 @@
 
     function handlePlanAction() {
       if (currentPlan === 'free') {
-        window.location.href = '/pricing.html';
+        window.location.href = '/pricing';
       } else {
         openBillingPortal();
       }
@@ -505,7 +507,7 @@
               ? ` on the <strong>${data.plan}</strong> plan` : '';
             showScanStatus('error',
               `Scan limit reached — you've used all ${data.used} scan${data.used !== 1 ? 's' : ''} this month${planLabel}. ` +
-              `<a href="/pricing.html" style="color:#C9A84C;font-weight:700;">Upgrade →</a>`, true);
+              `<a href="/pricing" style="color:#C9A84C;font-weight:700;">Upgrade →</a>`, true);
             return;
           }
         }

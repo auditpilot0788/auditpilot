@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuditPilot for Agencies — Turn EAA Compliance into Revenue</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0A1F44;
+      color: #fff;
+    }
+
+    /* ── NAVBAR ── */
+    .nav {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 16px 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky; top: 0;
+      background: #0A1F44; z-index: 100;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-name { color: #fff; font-size: 15px; font-weight: 700; line-height: 1; }
+    .logo-tag { color: #C9A84C; font-size: 7px; font-weight: 500; letter-spacing: 2.5px; margin-top: 3px; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-link { color: rgba(255,255,255,0.55); font-size: 13px; text-decoration: none; }
+    .nav-link:hover { color: #fff; }
+    .nav-cta {
+      background: #C9A84C; color: #0A1F44;
+      font-size: 13px; font-weight: 700;
+      padding: 8px 18px; border-radius: 6px;
+      text-decoration: none;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 80px 48px 64px;
+      max-width: 900px; margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(201,168,76,0.12);
+      border: 1px solid rgba(201,168,76,0.35);
+      border-radius: 20px; padding: 5px 16px;
+      margin-bottom: 28px;
+      color: #C9A84C; font-size: 11px;
+      font-weight: 600; letter-spacing: 1.5px;
+    }
+    .hero h1 {
+      font-size: 48px; font-weight: 800;
+      line-height: 1.15; margin-bottom: 20px;
+    }
+    .hero h1 span { color: #C9A84C; }
+    .hero-sub {
+      color: rgba(255,255,255,0.6);
+      font-size: 18px; line-height: 1.7;
+      max-width: 620px; margin: 0 auto 36px;
+    }
+    .hero-cta {
+      display: inline-block;
+      background: #C9A84C; color: #fff;
+      font-size: 16px; font-weight: 700;
+      padding: 16px 36px; border-radius: 10px;
+      text-decoration: none;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      margin-bottom: 16px;
+    }
+    .hero-cta:hover { background: #b8922e; }
+    .hero-note {
+      color: rgba(255,255,255,0.35);
+      font-size: 12px;
+    }
+
+    /* ── PROBLEM SECTION ── */
+    .problem {
+      background: #0D2352;
+      padding: 64px 48px;
+      text-align: center;
+    }
+    .section-label {
+      color: #C9A84C; font-size: 11px;
+      font-weight: 600; letter-spacing: 3px;
+      margin-bottom: 16px;
+    }
+    .problem h2 {
+      font-size: 34px; font-weight: 800;
+      margin-bottom: 48px; max-width: 700px;
+      margin-left: auto; margin-right: auto;
+    }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px; max-width: 900px;
+      margin: 0 auto;
+    }
+    .problem-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 28px 24px;
+      text-align: left;
+    }
+    .problem-icon { font-size: 28px; margin-bottom: 14px; }
+    .problem-card h3 {
+      font-size: 15px; font-weight: 700;
+      margin-bottom: 10px; color: #fff;
+    }
+    .problem-card p {
+      color: rgba(255,255,255,0.5);
+      font-size: 13px; line-height: 1.65;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      padding: 80px 48px;
+      max-width: 900px; margin: 0 auto;
+      text-align: center;
+    }
+    .how h2 {
+      font-size: 34px; font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .how-sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 15px; margin-bottom: 56px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px; position: relative;
+    }
+    .step {
+      background: #0D2352;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 28px 20px;
+      text-align: center; position: relative;
+    }
+    .step-num {
+      width: 40px; height: 40px;
+      background: #C9A84C; border-radius: 50%;
+      display: flex; align-items: center;
+      justify-content: center;
+      font-size: 16px; font-weight: 700;
+      color: #0A1F44; margin: 0 auto 16px;
+    }
+    .step h3 {
+      font-size: 14px; font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .step p {
+      color: rgba(255,255,255,0.5);
+      font-size: 12px; line-height: 1.6;
+    }
+    .step-arrow {
+      position: absolute; right: -12px; top: 50%;
+      transform: translateY(-50%);
+      color: #C9A84C; font-size: 20px;
+      z-index: 1;
+    }
+
+    /* ── ROI CALCULATOR ── */
+    .roi {
+      background: #0D2352;
+      padding: 80px 48px;
+      text-align: center;
+    }
+    .roi h2 {
+      font-size: 34px; font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .roi-sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 15px; margin-bottom: 48px;
+    }
+    .roi-calculator {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 16px; padding: 40px;
+      max-width: 680px; margin: 0 auto;
+    }
+    .roi-slider-group { margin-bottom: 32px; text-align: left; }
+    .roi-slider-label {
+      display: flex; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .roi-slider-label span:first-child {
+      color: rgba(255,255,255,0.7); font-size: 14px;
+    }
+    .roi-slider-label span:last-child {
+      color: #C9A84C; font-size: 16px; font-weight: 700;
+    }
+    input[type="range"] {
+      width: 100%; height: 4px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px; outline: none;
+      -webkit-appearance: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      background: #C9A84C; border-radius: 50%;
+    }
+    .roi-result {
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 12px; padding: 28px;
+      margin-top: 8px;
+    }
+    .roi-result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin-bottom: 20px;
+    }
+    .roi-metric label {
+      color: rgba(255,255,255,0.5);
+      font-size: 11px; letter-spacing: 1px;
+      display: block; margin-bottom: 6px;
+    }
+    .roi-metric .value {
+      color: #C9A84C; font-size: 26px;
+      font-weight: 800;
+    }
+    .roi-metric .value.profit {
+      color: #06D6A0;
+    }
+    .roi-summary {
+      color: rgba(255,255,255,0.6);
+      font-size: 13px; line-height: 1.6;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 16px; margin-top: 4px;
+    }
+
+    /* ── COMPARISON TABLE ── */
+    .compare {
+      padding: 80px 48px;
+      max-width: 860px; margin: 0 auto;
+      text-align: center;
+    }
+    .compare h2 {
+      font-size: 34px; font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .compare-sub {
+      color: rgba(255,255,255,0.5);
+      font-size: 15px; margin-bottom: 48px;
+    }
+    .compare-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .compare-table th {
+      padding: 16px 20px; font-size: 13px;
+      font-weight: 700; letter-spacing: 0.5px;
+    }
+    .compare-table th:first-child { text-align: left; }
+    .th-manual { color: rgba(255,255,255,0.4); }
+    .th-auditpilot {
+      color: #C9A84C;
+      background: rgba(201,168,76,0.08);
+      border-radius: 8px 8px 0 0;
+    }
+    .compare-table td {
+      padding: 14px 20px; font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .compare-table td:first-child {
+      text-align: left;
+      color: rgba(255,255,255,0.7);
+    }
+    .compare-table td:nth-child(2) {
+      color: rgba(255,255,255,0.35);
+    }
+    .compare-table td:nth-child(3) {
+      background: rgba(201,168,76,0.06);
+      color: #C9A84C; font-weight: 600;
+    }
+    .compare-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+    .compare-table tr:hover td:nth-child(3) {
+      background: rgba(201,168,76,0.1);
+    }
+
+    /* ── FINAL CTA ── */
+    .final-cta {
+      background: linear-gradient(135deg, #0D2352 0%, #1A3F8F 100%);
+      padding: 80px 48px; text-align: center;
+      border-top: 1px solid rgba(201,168,76,0.2);
+    }
+    .final-cta h2 {
+      font-size: 38px; font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .final-cta h2 span { color: #C9A84C; }
+    .final-cta p {
+      color: rgba(255,255,255,0.6);
+      font-size: 16px; margin-bottom: 36px;
+    }
+    .cta-buttons {
+      display: flex; gap: 16px;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: #C9A84C; color: #fff;
+      font-size: 15px; font-weight: 700;
+      padding: 15px 32px; border-radius: 10px;
+      text-decoration: none;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .btn-primary:hover { background: #b8922e; }
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: #fff; font-size: 15px;
+      font-weight: 600; padding: 15px 32px;
+      border-radius: 10px; text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+
+    /* ── FOOTER ── */
+    .footer {
+      padding: 24px 48px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex; justify-content: space-between;
+      align-items: center;
+    }
+    .footer-text {
+      color: rgba(255,255,255,0.3); font-size: 12px;
+    }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-link {
+      color: rgba(255,255,255,0.3);
+      font-size: 12px; text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <path d="M18 3L30 9L30 20Q30 29 18 33Q6 29 6 20L6 9Z" fill="#0A1F44"/>
+      <path d="M18 6L27 11L27 20Q27 27 18 31Q9 27 9 20L9 11Z" fill="#0D2D6B"/>
+      <path d="M18 9L25 13L25 20Q25 26 18 30Q11 26 11 20L11 13Z" fill="#1A3F8F"/>
+      <rect x="6" y="9" width="24" height="2" rx="1" fill="#C9A84C"/>
+      <path d="M12 19.5L16 24L24 14" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div style="display:flex;flex-direction:column;">
+      <span class="logo-name">AuditPilot</span>
+      <span class="logo-tag">EAA COMPLIANCE</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/pricing" class="nav-link">Pricing</a>
+    <a href="/agencies" class="nav-link" style="color:#C9A84C;">For agencies</a>
+    <a href="/login" class="nav-cta">Start free →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    🏢 BUILT FOR DIGITAL AGENCIES
+  </div>
+  <h1>Turn EAA compliance into<br><span>a new revenue stream.</span></h1>
+  <p class="hero-sub">
+    Your clients are starting to ask about EAA compliance.
+    AuditPilot gives you a professional compliance report in 2 minutes —
+    so you can deliver more value, win more projects, and bill more.
+  </p>
+  <a href="/login" class="hero-cta">Start free — scan your first client →</a>
+  <p class="hero-note">No credit card · 3 free scans/month · Setup in 2 minutes</p>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <p class="section-label">THE PROBLEM</p>
+  <h2>Your clients are asking questions<br>you can't answer yet.</h2>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="problem-icon">😰</div>
+      <h3>"Is our website EAA compliant?"</h3>
+      <p>Clients are receiving notices, losing tenders, and asking their agencies for proof. Most agencies have no scalable answer.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">⏰</div>
+      <h3>Manual audits take days</h3>
+      <p>Hiring accessibility consultants costs €150–300/hour. Creating reports manually takes 4–8 hours per website. Not scalable.</p>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">📉</div>
+      <h3>Losing projects to competitors</h3>
+      <p>RFPs now include EAA compliance as a requirement. Agencies that can't prove compliance are losing bids they used to win.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <p class="section-label" style="text-align:center;">HOW IT WORKS</p>
+  <h2>From URL to client report in 2 minutes.</h2>
+  <p class="how-sub">No setup. No consultants. No manual work.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Enter client URL</h3>
+      <p>Paste any client website URL into AuditPilot dashboard</p>
+      <span class="step-arrow">→</span>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Auto scan runs</h3>
+      <p>AuditPilot scans the site for all WCAG 2.1 AA & EAA issues</p>
+      <span class="step-arrow">→</span>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>PDF report ready</h3>
+      <p>Professional 8-page compliance report with scores, fixes & legal statement</p>
+      <span class="step-arrow">→</span>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h3>Send to client & bill</h3>
+      <p>Send the branded PDF to your client. Bill €500–1500 for the compliance service</p>
+    </div>
+  </div>
+</section>
+
+<!-- ROI CALCULATOR -->
+<section class="roi">
+  <p class="section-label">ROI CALCULATOR</p>
+  <h2>See your potential revenue.</h2>
+  <p class="roi-sub">Adjust the sliders to match your agency size.</p>
+
+  <div class="roi-calculator">
+    <div class="roi-slider-group">
+      <div class="roi-slider-label">
+        <span>Number of clients per month</span>
+        <span id="clientsVal">5 clients</span>
+      </div>
+      <input type="range" id="clientsSlider" min="1" max="50" value="5" oninput="updateROI()">
+    </div>
+
+    <div class="roi-slider-group">
+      <div class="roi-slider-label">
+        <span>Price charged per compliance report</span>
+        <span id="priceVal">€750 per report</span>
+      </div>
+      <input type="range" id="priceSlider" min="300" max="2000" value="750" step="50" oninput="updateROI()">
+    </div>
+
+    <div class="roi-result">
+      <div class="roi-result-grid">
+        <div class="roi-metric">
+          <label>MONTHLY REVENUE</label>
+          <div class="value" id="revenueVal">€3,750</div>
+        </div>
+        <div class="roi-metric">
+          <label>AUDITPILOT COST</label>
+          <div class="value">€299</div>
+        </div>
+        <div class="roi-metric">
+          <label>YOUR PROFIT</label>
+          <div class="value profit" id="profitVal">€3,451</div>
+        </div>
+      </div>
+      <p class="roi-summary" id="roiSummary">
+        With 5 clients at €750 each, you generate €3,750/month.
+        After AuditPilot Agency plan (€299/month), your net profit is
+        <strong style="color:#06D6A0;">€3,451/month</strong> —
+        a <strong style="color:#06D6A0;">1154% ROI</strong>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="compare">
+  <p class="section-label" style="text-align:center;">WHY AUDITPILOT</p>
+  <h2>Manual audits vs AuditPilot</h2>
+  <p class="compare-sub">The same outcome — 40x faster, at a fraction of the cost.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="th-manual">Manual / Consultant</th>
+        <th class="th-auditpilot">AuditPilot ✦</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Time per report</td>
+        <td>4–8 hours</td>
+        <td>2 minutes</td>
+      </tr>
+      <tr>
+        <td>Cost per report</td>
+        <td>€400–1,200</td>
+        <td>€15 (Agency plan)</td>
+      </tr>
+      <tr>
+        <td>EAA Readiness Score</td>
+        <td>Opinion-based</td>
+        <td>Automated & consistent</td>
+      </tr>
+      <tr>
+        <td>Client-ready PDF</td>
+        <td>Manual formatting</td>
+        <td>Auto-generated</td>
+      </tr>
+      <tr>
+        <td>Accessibility Statement</td>
+        <td>Extra cost</td>
+        <td>Included in every report</td>
+      </tr>
+      <tr>
+        <td>Element screenshots</td>
+        <td>Manual screenshots</td>
+        <td>Auto-captured</td>
+      </tr>
+      <tr>
+        <td>Scalability</td>
+        <td>Limited by consultant hours</td>
+        <td>Unlimited with Agency plan</td>
+      </tr>
+      <tr>
+        <td>Consistency</td>
+        <td>Varies by consultant</td>
+        <td>Same quality every time</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2>Ready to offer EAA compliance<br><span>as a service?</span></h2>
+  <p>Start with 3 free scans. No credit card required. Setup in 2 minutes.</p>
+  <div class="cta-buttons">
+    <a href="/login" class="btn-primary">Create free account →</a>
+    <a href="/pricing" class="btn-secondary">View pricing</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer-text">© 2026 AuditPilot — EAA Compliance Platform</span>
+  <div class="footer-links">
+    <a href="/pricing" class="footer-link">Pricing</a>
+    <a href="/login" class="footer-link">Login</a>
+  </div>
+</footer>
+
+<!-- ROI CALCULATOR SCRIPT -->
+<script>
+  function updateROI() {
+    const clients = parseInt(document.getElementById('clientsSlider').value);
+    const price   = parseInt(document.getElementById('priceSlider').value);
+    const cost    = 299;
+
+    const revenue = clients * price;
+    const profit  = revenue - cost;
+    const roi     = Math.round((profit / cost) * 100);
+
+    document.getElementById('clientsVal').textContent  = clients + ' clients';
+    document.getElementById('priceVal').textContent    = '€' + price.toLocaleString() + ' per report';
+    document.getElementById('revenueVal').textContent  = '€' + revenue.toLocaleString();
+    document.getElementById('profitVal').textContent   = '€' + profit.toLocaleString();
+    document.getElementById('roiSummary').innerHTML    = `
+      With ${clients} clients at €${price.toLocaleString()} each, you generate
+      <strong style="color:#fff;">€${revenue.toLocaleString()}/month</strong>.
+      After AuditPilot Agency plan (€299/month), your net profit is
+      <strong style="color:#06D6A0;">€${profit.toLocaleString()}/month</strong> —
+      a <strong style="color:#06D6A0;">${roi}% ROI</strong>.
+    `;
+  }
+</script>
+
+</body>
+</html>

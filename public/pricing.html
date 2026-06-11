@@ -176,9 +176,11 @@
       </div>
     </a>
     <div class="nav-links">
-      <a href="/" class="nav-link">Scanner</a>
-      <a href="/login.html" class="nav-link" id="nav-auth-link">Sign in</a>
-      <a href="/" class="nav-cta">Free audit →</a>
+      <a href="/" class="nav-link">Home</a>
+      <a href="/pricing" class="nav-link">Pricing</a>
+      <a href="/agencies" class="nav-link">For agencies</a>
+      <a href="/login" class="nav-link" id="nav-auth-link">Sign in</a>
+      <a href="/login" class="nav-cta">Free audit →</a>
     </div>
   </nav>
 
@@ -207,7 +209,7 @@
         <li class="dim">White-label branding</li>
         <li class="dim">Priority support</li>
       </ul>
-      <a href="/login.html" class="plan-btn outline" id="btn-free">Get started free</a>
+      <a href="/login" class="plan-btn outline" id="btn-free">Get started free</a>
     </div>
 
     <!-- Starter -->
@@ -333,11 +335,11 @@
       try {
         const authCheck = await fetch('/api/auth/me', { credentials: 'include' });
         if (!authCheck.ok) {
-          window.location.href = '/login.html?next=pricing';
+          window.location.href = '/login?next=pricing';
           return;
         }
       } catch {
-        window.location.href = '/login.html?next=pricing';
+        window.location.href = '/login?next=pricing';
         return;
       }
 
