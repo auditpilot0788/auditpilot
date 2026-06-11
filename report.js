@@ -6,7 +6,7 @@
  * element screenshots, remediation effort rating, priority fixes, and agency config.
  */
 
-const { chromium } = require('playwright');
+const { chromium } = require('playwright-core');
 const fs   = require('fs');
 const path = require('path');
 const config = require('./config');
@@ -1040,8 +1040,15 @@ async function generateReport(url, scanResults) {
     const htmlContent = buildReportHtml(url, scanResults);
 
     browser = await chromium.launch({
+      executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH,
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--single-process'
+      ]
     });
 
     const context = await browser.newContext();
