@@ -163,8 +163,9 @@ app.post('/scan', optionalAuth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('[SCAN ERROR]', error.message);
-    console.error('[SCAN ERROR STACK]', error.stack);
+    console.error('[SCAN FAILED] Error name:', error.name);
+    console.error('[SCAN FAILED] Error message:', error.message);
+    console.error('[SCAN FAILED] Stack:', error.stack);
 
     if (/timeout/i.test(error.message)) {
       return res.status(408).json({ error: 'The website took too long to load (30 s limit). Please try again.' });
@@ -179,7 +180,11 @@ app.post('/scan', optionalAuth, async (req, res) => {
       return res.status(500).json({ error: 'Report generation failed. Please try again.' });
     }
 
-    res.status(500).json({ error: 'An unexpected error occurred. Please try again.' });
+    res.status(500).json({
+      error:   'scan_failed',
+      message: error.message,
+      details: error.stack
+    });
   }
 });
 

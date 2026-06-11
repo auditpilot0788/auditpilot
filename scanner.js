@@ -126,6 +126,8 @@ async function scanWebsite(url) {
   const startTime = Date.now();
 
   try {
+    console.log('[SCAN] Starting scan for:', url);
+    console.log('[SCAN] Launching browser...');
     browser = await chromium.launch({
       headless: true,
       args: [
@@ -135,6 +137,7 @@ async function scanWebsite(url) {
         '--disable-gpu'
       ]
     });
+    console.log('[SCAN] Browser launched successfully');
 
     const context = await browser.newContext({
       viewport:  { width: 1280, height: 800 },
