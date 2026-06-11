@@ -132,6 +132,7 @@ async function scanWebsite(url) {
       executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH ||
         require('playwright-core').executablePath('chromium'),
       headless: true,
+      timeout: 60000,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -150,7 +151,7 @@ async function scanWebsite(url) {
 
     const page = await context.newPage();
 
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.waitForTimeout(1000);
 
     // ── Axe-core scan ──────────────────────────────────────────────────────────

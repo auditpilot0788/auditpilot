@@ -1042,6 +1042,7 @@ async function generateReport(url, scanResults) {
     browser = await chromium.launch({
       executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH,
       headless: true,
+      timeout: 60000,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -1053,7 +1054,7 @@ async function generateReport(url, scanResults) {
 
     const context = await browser.newContext();
     const page    = await context.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle', timeout: 60000 });
+    await page.setContent(htmlContent, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.pdf({
       path: pdfPath,
       format: 'A4',
