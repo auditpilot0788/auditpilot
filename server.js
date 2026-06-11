@@ -16,8 +16,9 @@ const { generateReport } = require('./report');
 const authRouter       = require('./src/routes/auth');
 const billingRouter    = require('./src/routes/billing');
 const { requireAuth, optionalAuth } = require('./src/middleware/auth');
-const { canUserScan, recordScan,
-        checkAnonymousLimit, recordAnonymousScan } = require('./src/lib/scanLimits');
+const { canUserScan, recordScan }                = require('./src/lib/scanLimits');
+const { getAnonId }                              = require('./src/middleware/anonymousTracker');
+const { checkAnonLimit, recordAnonScan }         = require('./src/lib/anonLimits');
 const { query } = require('./src/db/connection');
 
 const app  = express();
@@ -37,6 +38,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ── API routes ────────────────────────────────────────────────────────────────
 app.use('/api/auth',    authRouter);
 app.use('/api/billing', billingRouter);
+
+// ── Static page routes (extensionless URLs) ───────────────────────────────────
+app.get('/pricing',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'pricing.html')));
+app.get('/login',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
+app.get('/agencies',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'agencies.html')));
 
 // ── Ensure storage directories exist ─────────────────────────────────────────
 ['reports', 'screenshots'].forEach(dir => {
@@ -68,6 +75,10 @@ app.post('/scan', optionalAuth, async (req, res) => {
   }
 
   // ── Scan limit check ────────────────────────────────────────────────────────
+  const ipAddress   = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
+  const fingerprint = req.headers['x-browser-fp'] || 'unknown';
+  let   anonId      = null;
+
   if (req.user) {
     // Authenticated — enforce monthly plan limit
     const { allowed, used, limit, plan } = await canUserScan(req.user.sub);
@@ -77,18 +88,22 @@ app.post('/scan', optionalAuth, async (req, res) => {
         used,
         limit,
         plan,
-        upgradeUrl: '/pricing.html'
+        upgradeUrl: '/pricing'
       });
     }
   } else {
-    // Anonymous — enforce 1 scan per 24 h per IP
-    if (!checkAnonymousLimit(req.ip)) {
+    // Anonymous — enforce 1 scan per 30 days by cookie + IP + fingerprint
+    anonId = getAnonId(req, res);
+    const anonCheck = await checkAnonLimit(anonId, ipAddress, fingerprint);
+    if (!anonCheck.allowed) {
       return res.status(403).json({
-        error:      'scan_limit_reached',
-        used:       1,
-        limit:      1,
-        plan:       'anonymous',
-        upgradeUrl: '/pricing.html'
+        error:       'anonymous_limit_reached',
+        message:     'You have used your free scan.',
+        scansUsed:   anonCheck.scansUsed,
+        limit:       anonCheck.limit,
+        action:      'register',
+        registerUrl: '/login',
+        benefit:     'Create a free account to get 3 scans per month'
       });
     }
   }
@@ -110,7 +125,9 @@ app.post('/scan', optionalAuth, async (req, res) => {
         console.error('[AuditPilot] Failed to record scan usage:', err.message)
       );
     } else {
-      recordAnonymousScan(req.ip);
+      recordAnonScan(anonId, ipAddress, fingerprint, normalizedUrl).catch(err =>
+        console.error('[AuditPilot] Failed to record anonymous scan:', err.message)
+      );
     }
 
     // Step 4: Stream the PDF back to the client
