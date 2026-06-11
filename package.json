@@ -19,8 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
     "playwright": "^1.40.0",
-    "stripe": "^14.21.0",
-    "puppeteer": "^21.6.1"
+    "stripe": "^14.21.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
