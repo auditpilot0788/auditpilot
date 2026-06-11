@@ -4,7 +4,7 @@
  * and returns structured results including EAA readiness score and scan metadata.
  */
 
-const { chromium } = require('playwright');
+const { chromium } = require('playwright-core');
 const { AxeBuilder } = require('@axe-core/playwright');
 const path = require('path');
 
@@ -129,12 +129,15 @@ async function scanWebsite(url) {
     console.log('[SCAN] Starting scan for:', url);
     console.log('[SCAN] Launching browser...');
     browser = await chromium.launch({
+      executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH ||
+        require('playwright-core').executablePath('chromium'),
       headless: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
-        '--disable-gpu'
+        '--disable-gpu',
+        '--single-process'
       ]
     });
     console.log('[SCAN] Browser launched successfully');
