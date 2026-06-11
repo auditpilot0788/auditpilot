@@ -80,31 +80,40 @@ app.post('/scan', optionalAuth, async (req, res) => {
   let   anonId      = null;
 
   if (req.user) {
-    // Authenticated — enforce monthly plan limit
-    const { allowed, used, limit, plan } = await canUserScan(req.user.sub);
-    if (!allowed) {
-      return res.status(403).json({
-        error:      'scan_limit_reached',
-        used,
-        limit,
-        plan,
-        upgradeUrl: '/pricing'
-      });
+    // Authenticated — enforce monthly plan limit (skip if DB is unavailable)
+    try {
+      const { allowed, used, limit, plan } = await canUserScan(req.user.sub);
+      if (!allowed) {
+        return res.status(403).json({
+          error:      'scan_limit_reached',
+          used,
+          limit,
+          plan,
+          upgradeUrl: '/pricing'
+        });
+      }
+    } catch (dbErr) {
+      console.error('[AuditPilot] DB error during user limit check — allowing scan:', dbErr.message);
     }
   } else {
     // Anonymous — enforce 1 scan per 30 days by cookie + IP + fingerprint
-    anonId = getAnonId(req, res);
-    const anonCheck = await checkAnonLimit(anonId, ipAddress, fingerprint);
-    if (!anonCheck.allowed) {
-      return res.status(403).json({
-        error:       'anonymous_limit_reached',
-        message:     'You have used your free scan.',
-        scansUsed:   anonCheck.scansUsed,
-        limit:       anonCheck.limit,
-        action:      'register',
-        registerUrl: '/login',
-        benefit:     'Create a free account to get 3 scans per month'
-      });
+    // If DB is unavailable, allow the scan to proceed
+    try {
+      anonId = getAnonId(req, res);
+      const anonCheck = await checkAnonLimit(anonId, ipAddress, fingerprint);
+      if (!anonCheck.allowed) {
+        return res.status(403).json({
+          error:       'anonymous_limit_reached',
+          message:     'You have used your free scan.',
+          scansUsed:   anonCheck.scansUsed,
+          limit:       anonCheck.limit,
+          action:      'register',
+          registerUrl: '/login',
+          benefit:     'Create a free account to get 3 scans per month'
+        });
+      }
+    } catch (dbErr) {
+      console.error('[AuditPilot] DB error during anon limit check — allowing scan:', dbErr.message);
     }
   }
 
@@ -154,7 +163,8 @@ app.post('/scan', optionalAuth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('[AuditPilot] Scan error:', error.message);
+    console.error('[SCAN ERROR]', error.message);
+    console.error('[SCAN ERROR STACK]', error.stack);
 
     if (/timeout/i.test(error.message)) {
       return res.status(408).json({ error: 'The website took too long to load (30 s limit). Please try again.' });
