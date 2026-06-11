@@ -150,6 +150,132 @@
     urlInput.focus();
   }
 
+  // ── Browser fingerprint ──────────────────────────────────────────────────────
+
+  async function getBrowserFingerprint() {
+    const signals = [
+      navigator.userAgent,
+      navigator.language,
+      screen.width + 'x' + screen.height,
+      screen.colorDepth,
+      new Date().getTimezoneOffset(),
+      navigator.hardwareConcurrency || 'unknown',
+      navigator.platform || 'unknown'
+    ];
+    const raw         = signals.join('|');
+    const encoder     = new TextEncoder();
+    const hashBuffer  = await crypto.subtle.digest('SHA-256', encoder.encode(raw));
+    const hashArray   = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32);
+  }
+
+  function getOrCreateLocalId() {
+    let localId = localStorage.getItem('ap_uid');
+    if (!localId) {
+      localId = 'ls_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem('ap_uid', localId);
+    }
+    return localId;
+  }
+
+  // ── Registration prompt modal ─────────────────────────────────────────────────
+
+  function showRegistrationPrompt() {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; font-family: Arial, sans-serif;
+    `;
+    modal.innerHTML = `
+      <div style="
+        background: #0D2352;
+        border: 1px solid rgba(201,168,76,0.35);
+        border-radius: 16px; padding: 40px;
+        max-width: 460px; width: 90%;
+        text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      ">
+        <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
+        <h2 style="color:#fff; font-size:22px; font-weight:700; margin-bottom:12px;">
+          You have used your free scan!
+        </h2>
+        <p style="color:rgba(255,255,255,0.6); font-size:14px; line-height:1.7; margin-bottom:28px;">
+          Create a free account to get
+          <strong style="color:#C9A84C;">3 scans every month</strong>
+          — plus save your reports and track compliance over time.
+        </p>
+        <a href="/login" style="
+          display: block; background: #C9A84C; color: #fff;
+          font-size: 15px; font-weight: 700;
+          padding: 15px 24px; border-radius: 8px;
+          text-decoration: none; margin-bottom: 14px;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        ">
+          Create free account → 3 scans/month
+        </a>
+        <button onclick="this.closest('.ap-modal').remove()" style="
+          background: none; border: none;
+          color: rgba(255,255,255,0.35);
+          font-size: 13px; cursor: pointer; padding: 8px;
+        ">
+          No thanks
+        </button>
+      </div>`;
+    modal.classList.add('ap-modal');
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+  }
+
+  // ── Upgrade prompt modal ──────────────────────────────────────────────────────
+
+  function showUpgradePrompt(currentPlan, upgradeUrl) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; font-family: Arial, sans-serif;
+    `;
+    modal.innerHTML = `
+      <div style="
+        background: #0D2352;
+        border: 1px solid rgba(201,168,76,0.35);
+        border-radius: 16px; padding: 40px;
+        max-width: 460px; width: 90%;
+        text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      ">
+        <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+        <h2 style="color:#fff; font-size:22px; font-weight:700; margin-bottom:12px;">
+          Monthly scan limit reached
+        </h2>
+        <p style="color:rgba(255,255,255,0.6); font-size:14px; line-height:1.7; margin-bottom:28px;">
+          You've used all your scans on the
+          <strong style="color:#C9A84C;">${currentPlan}</strong> plan.
+          Upgrade to Agency for unlimited scans.
+        </p>
+        <a href="${upgradeUrl}" style="
+          display: block; background: #C9A84C; color: #fff;
+          font-size: 15px; font-weight: 700;
+          padding: 15px 24px; border-radius: 8px;
+          text-decoration: none; margin-bottom: 14px;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        ">
+          Upgrade to Agency — €299/month
+        </a>
+        <button onclick="this.closest('.ap-modal').remove()" style="
+          background: none; border: none;
+          color: rgba(255,255,255,0.35);
+          font-size: 13px; cursor: pointer; padding: 8px;
+        ">
+          Maybe later
+        </button>
+      </div>`;
+    modal.classList.add('ap-modal');
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+  }
+
   // ── Scan limit error ─────────────────────────────────────────────────────────
 
   function showLimitError(used, limit, plan) {
@@ -185,10 +311,17 @@
     goLoading();
 
     try {
+      const fingerprint = await getBrowserFingerprint();
+      const localId     = getOrCreateLocalId();
+
       const response = await fetch('/scan', {
         method:      'POST',
-        headers:     { 'Content-Type': 'application/json' },
-        credentials: 'include',   // send auth cookie so the server knows the user's plan
+        headers:     {
+          'Content-Type': 'application/json',
+          'x-browser-fp': fingerprint,
+          'x-local-id':   localId
+        },
+        credentials: 'include',
         body:        JSON.stringify({ url: normalized })
       });
 
@@ -196,13 +329,18 @@
         let data = null;
         try { data = await response.json(); } catch { /* body not JSON */ }
 
-        // Scan limit reached — show upgrade prompt instead of generic error
-        if (response.status === 403 && data?.error === 'scan_limit_reached') {
+        // All 403s go to modals — never to inline error text
+        if (response.status === 403) {
           clearInterval(stepTimer);
           stateLoad.hidden = true;
           stateForm.hidden = false;
           scanBtn.disabled = false;
-          showLimitError(data.used, data.limit, data.plan);
+          if (data?.error === 'scan_limit_reached') {
+            showUpgradePrompt(data.plan || 'free', data.upgradeUrl || '/pricing');
+          } else {
+            // anonymous_limit_reached or any other 403
+            showRegistrationPrompt();
+          }
           return;
         }
 
