@@ -3,6 +3,27 @@
  * Orchestrates scanning and report generation; serves the static frontend.
  */
 
+const { execSync } = require('child_process');
+
+// Install Playwright browsers on startup if not present
+try {
+  const fs = require('fs');
+  const browserPath = require('path').join(
+    require('os').homedir(),
+    '.cache/ms-playwright'
+  );
+  if (!fs.existsSync(browserPath)) {
+    console.log('[Startup] Installing Playwright browsers...');
+    execSync('npx playwright install chromium', {
+      stdio: 'inherit',
+      timeout: 120000
+    });
+    console.log('[Startup] Playwright browsers installed.');
+  }
+} catch (e) {
+  console.warn('[Startup] Playwright install warning:', e.message);
+}
+
 require('dotenv').config();
 
 const express      = require('express');
