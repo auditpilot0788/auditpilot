@@ -255,6 +255,38 @@ app.get('/reports/:filename', requireAuth, (req, res) => {
   res.download(filePath);
 });
 
+// ── DEBUG: find Chromium path inside Docker container ─────────────────────────
+app.get('/debug-browser', async (req, res) => {
+  const { execSync } = require('child_process');
+  try {
+    const results = {};
+
+    try {
+      results.which_chromium = execSync('which chromium || which chromium-browser || which google-chrome || echo "not found"').toString().trim();
+    } catch(e) { results.which_chromium = e.message; }
+
+    try {
+      results.find_chrome = execSync('find /ms-playwright -name "chrome*" -type f 2>/dev/null | head -5').toString().trim();
+    } catch(e) { results.find_chrome = e.message; }
+
+    try {
+      results.find_chromium = execSync('find / -name "chromium*" -type f 2>/dev/null | head -5').toString().trim();
+    } catch(e) { results.find_chromium = e.message; }
+
+    try {
+      results.playwright_path = require('playwright-core').executablePath('chromium');
+    } catch(e) { results.playwright_path = e.message; }
+
+    try {
+      results.ls_ms_playwright = execSync('ls /ms-playwright/ 2>/dev/null || echo "directory not found"').toString().trim();
+    } catch(e) { results.ls_ms_playwright = e.message; }
+
+    res.json(results);
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
+
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n  ██████  AuditPilot running at http://localhost:${PORT}\n`);
