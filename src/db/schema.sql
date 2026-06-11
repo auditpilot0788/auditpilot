@@ -50,3 +50,19 @@ CREATE INDEX IF NOT EXISTS idx_scan_usage_month_year ON scan_usage (user_id, mon
 
 -- Add report_filename to existing deployments that were created before this column existed
 ALTER TABLE scan_usage ADD COLUMN IF NOT EXISTS report_filename VARCHAR(500);
+
+-- ── Anonymous Scans ───────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS anonymous_scans (
+  id                   UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+  anon_id              VARCHAR(100),
+  ip_address           VARCHAR(50),
+  browser_fingerprint  VARCHAR(200),
+  scanned_url          VARCHAR(500),
+  scanned_at           TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+  month_year           VARCHAR(7)
+);
+
+CREATE INDEX IF NOT EXISTS idx_anon_scans_anon_id     ON anonymous_scans (anon_id);
+CREATE INDEX IF NOT EXISTS idx_anon_scans_ip          ON anonymous_scans (ip_address);
+CREATE INDEX IF NOT EXISTS idx_anon_scans_fingerprint ON anonymous_scans (browser_fingerprint);
