@@ -126,9 +126,7 @@ async function scanWebsite(url) {
   const startTime = Date.now();
 
   try {
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT;
     browser = await chromium.launch({
-      executablePath: isProduction ? '/usr/bin/chromium-browser' : undefined,
       headless: true,
       args: [
         '--no-sandbox',
