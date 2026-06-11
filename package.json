@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "postinstall": "npx playwright install chromium",
     "db:migrate": "node src/db/migrate.js"
   },
   "dependencies": {
