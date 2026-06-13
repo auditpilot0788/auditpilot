@@ -294,11 +294,10 @@
           — plus save your reports and track compliance over time.
         </p>
         <a href="/login" style="
-          display: block; background: #C9A84C; color: #fff;
+          display: block; background: #C9A84C; color: #0A1F44;
           font-size: 15px; font-weight: 700;
           padding: 15px 24px; border-radius: 8px;
           text-decoration: none; margin-bottom: 14px;
-          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         ">
           Create free account → 3 scans/month
         </a>
@@ -343,11 +342,10 @@
           Upgrade to Agency for unlimited scans.
         </p>
         <a href="${upgradeUrl}" style="
-          display: block; background: #C9A84C; color: #fff;
+          display: block; background: #C9A84C; color: #0A1F44;
           font-size: 15px; font-weight: 700;
           padding: 15px 24px; border-radius: 8px;
           text-decoration: none; margin-bottom: 14px;
-          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         ">
           Upgrade to Agency — €299/month
         </a>
