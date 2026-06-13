@@ -40,10 +40,11 @@
     'Generating professional PDF report…'
   ];
 
-  let stepTimer      = null;
-  let currentBlobUrl = null;
-  let lastScannedUrl = '';
-  let lastScoreData  = null;
+  let stepTimer       = null;
+  let currentBlobUrl  = null;
+  let lastScannedUrl  = '';
+  let lastScoreData   = null;
+  let isAuthenticated = false;
 
   // ── Validation ──────────────────────────────────────────────────────────────
 
@@ -110,6 +111,21 @@
     }, 6000);
   }
 
+  // ── One-time download handler (Bug 3) ───────────────────────────────────────
+
+  function handleDownloadClick() {
+    setTimeout(() => {
+      if (currentBlobUrl) {
+        URL.revokeObjectURL(currentBlobUrl);
+        currentBlobUrl = null;
+      }
+      downloadSection.hidden = true;
+      leadThanks.hidden      = false;
+      leadThanks.innerHTML   =
+        '<p style="color:#4ade80;font-size:15px;font-weight:600;">Report downloaded ✓</p>';
+    }, 500); // small delay so browser has time to initiate the download
+  }
+
   function goSuccess(blob, filename, scoreData) {
     clearInterval(stepTimer);
 
@@ -146,7 +162,21 @@
     downloadLnk.href     = currentBlobUrl;
     downloadLnk.download = filename;
 
-    // Build top-issues teaser
+    stateLoad.hidden = true;
+    stateSucc.hidden = false;
+
+    // ── Bug 1: skip email gate for logged-in users ───────────────────────────
+    if (isAuthenticated) {
+      issueTeaserEl.innerHTML = '';
+      emailGate.hidden        = true;
+      leadThanks.hidden       = true;
+      downloadSection.hidden  = false;
+      downloadLnk.removeEventListener('click', handleDownloadClick);
+      downloadLnk.addEventListener('click', handleDownloadClick, { once: true });
+      return;
+    }
+
+    // ── Anonymous: show teaser + email gate ──────────────────────────────────
     issueTeaserEl.innerHTML = '';
     if (scoreData) {
       const bullets = [];
@@ -169,7 +199,6 @@
       ).join('');
     }
 
-    // Show email gate; reset state
     emailGate.hidden       = false;
     leadThanks.hidden      = true;
     downloadSection.hidden = true;
@@ -180,8 +209,6 @@
     leadBtn.disabled       = false;
     leadBtn.textContent    = 'Email me the full report →';
 
-    stateLoad.hidden = true;
-    stateSucc.hidden = false;
     leadEmailInput.focus();
   }
 
@@ -195,7 +222,11 @@
     issueTeaserEl.innerHTML = '';
     emailGate.hidden        = false;
     leadThanks.hidden       = true;
+    leadThanks.innerHTML    =
+      '<p style="color:#4ade80;font-size:15px;font-weight:600;margin-bottom:4px;">Thanks! Your report is ready.</p>' +
+      '<p style="color:rgba(255,255,255,0.65);font-size:12px;">Click below to download your PDF.</p>';
     downloadSection.hidden  = true;
+    downloadLnk.removeEventListener('click', handleDownloadClick);
     leadEmailInput.value    = '';
     leadConsent.checked     = false;
     leadError.hidden        = true;
@@ -469,6 +500,10 @@
     emailGate.hidden       = true;
     leadThanks.hidden      = false;
     downloadSection.hidden = false;
+
+    // Bug 3: one-time listener so blob is revoked after first download click
+    downloadLnk.removeEventListener('click', handleDownloadClick);
+    downloadLnk.addEventListener('click', handleDownloadClick, { once: true });
   }
 
   // ── Event listeners ─────────────────────────────────────────────────────────
@@ -487,5 +522,13 @@
   leadEmailInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitLeadEmail(); });
 
   resetBtn.addEventListener('click', goForm);
+
+  // ── Auth state check (Bug 1) — runs once on page load ────────────────────
+  (async function checkAuthState() {
+    try {
+      const r = await fetch('/api/auth/me', { credentials: 'include' });
+      if (r.ok) isAuthenticated = true;
+    } catch { /* offline or unauthenticated — leave false */ }
+  })();
 
 })();

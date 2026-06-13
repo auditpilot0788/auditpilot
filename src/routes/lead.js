@@ -1,5 +1,6 @@
 const express = require('express');
 const { query } = require('../db/connection');
+const { sendReportEmail } = require('../lib/mailer');
 
 const router   = express.Router();
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -51,6 +52,9 @@ router.post('/lead', async (req, res) => {
   } catch (err) {
     console.error('[lead] DB error (non-fatal):', err.message);
   }
+
+  // Fire-and-forget — never block the response on email delivery
+  sendReportEmail(cleanEmail);
 
   return res.json({ success: true });
 });
