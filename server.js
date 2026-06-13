@@ -196,17 +196,28 @@ app.get('/api/usage', requireAuth, async (req, res) => {
     const { allowed, used, limit, plan } = await canUserScan(req.user.sub);
 
     const subResult = await query(
-      `SELECT current_period_end FROM subscriptions
+      `SELECT plan AS sub_plan, current_period_end FROM subscriptions
          WHERE user_id = $1 AND status = 'active'
          ORDER BY created_at DESC LIMIT 1`,
       [req.user.sub]
     );
 
+    // For free plans, current_period_end is +100 years (never-expires sentinel).
+    // Show the 1st of next calendar month instead — that's when scan counts reset.
+    // For paid plans, show the actual Stripe billing renewal date.
+    const now = new Date();
+    const nextCalendarMonthStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)
+    );
+    const periodEnd = plan === 'free'
+      ? nextCalendarMonthStart
+      : (subResult.rows[0]?.current_period_end ?? nextCalendarMonthStart);
+
     return res.json({
       plan,
       scansUsed:  used,
       scansLimit: limit === Infinity ? 999999 : limit,
-      periodEnd:  subResult.rows[0]?.current_period_end ?? null,
+      periodEnd,
       canScan:    allowed
     });
   } catch (err) {
