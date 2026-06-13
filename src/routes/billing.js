@@ -155,7 +155,14 @@ router.post('/webhook', async (req, res) => {
             userId
           ]
         );
-        console.log(`[billing] Subscription activated — user ${userId}, plan ${plan}`);
+
+        // Reset this month's scan counter so the user gets their full new plan quota
+        const monthYear = new Date().toISOString().slice(0, 7);
+        await query(
+          `DELETE FROM scan_usage WHERE user_id = $1 AND month_year = $2`,
+          [userId, monthYear]
+        );
+        console.log(`[billing] Subscription activated — user ${userId}, plan ${plan}, scan usage reset for ${monthYear}`);
         break;
       }
 
