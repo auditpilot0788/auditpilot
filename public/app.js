@@ -207,7 +207,7 @@
     leadError.hidden       = true;
     leadError.textContent  = '';
     leadBtn.disabled       = false;
-    leadBtn.textContent    = 'Email me the full report →';
+    leadBtn.textContent    = 'Continue →';
 
     leadEmailInput.focus();
   }
@@ -224,7 +224,7 @@
     leadThanks.hidden       = true;
     leadThanks.innerHTML    =
       '<p style="color:#4ade80;font-size:15px;font-weight:600;margin-bottom:4px;">Thanks! Your report is ready.</p>' +
-      '<p style="color:rgba(255,255,255,0.65);font-size:12px;">Click below to download your PDF.</p>';
+      '<p style="color:rgba(255,255,255,0.65);font-size:12px;">Your report is ready — click below to download it now.</p>';
     downloadSection.hidden  = true;
     downloadLnk.removeEventListener('click', handleDownloadClick);
     leadEmailInput.value    = '';
