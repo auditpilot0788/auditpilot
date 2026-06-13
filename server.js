@@ -15,6 +15,7 @@ const { scanWebsite }  = require('./scanner');
 const { generateReport } = require('./report');
 const authRouter       = require('./src/routes/auth');
 const billingRouter    = require('./src/routes/billing');
+const leadRouter       = require('./src/routes/lead');
 const { requireAuth, optionalAuth } = require('./src/middleware/auth');
 const { canUserScan, recordScan }                = require('./src/lib/scanLimits');
 const { getAnonId }                              = require('./src/middleware/anonymousTracker');
@@ -38,6 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ── API routes ────────────────────────────────────────────────────────────────
 app.use('/api/auth',    authRouter);
 app.use('/api/billing', billingRouter);
+app.use('/api',         leadRouter);
 
 // ── Static page routes (extensionless URLs) ───────────────────────────────────
 app.get('/pricing',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'pricing.html')));

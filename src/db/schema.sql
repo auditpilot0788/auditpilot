@@ -66,3 +66,8 @@ CREATE TABLE IF NOT EXISTS anonymous_scans (
 CREATE INDEX IF NOT EXISTS idx_anon_scans_anon_id     ON anonymous_scans (anon_id);
 CREATE INDEX IF NOT EXISTS idx_anon_scans_ip          ON anonymous_scans (ip_address);
 CREATE INDEX IF NOT EXISTS idx_anon_scans_fingerprint ON anonymous_scans (browser_fingerprint);
+
+ALTER TABLE anonymous_scans ADD COLUMN IF NOT EXISTS email              VARCHAR(255);
+ALTER TABLE anonymous_scans ADD COLUMN IF NOT EXISTS source             VARCHAR(50);
+ALTER TABLE anonymous_scans ADD COLUMN IF NOT EXISTS marketing_consent  BOOLEAN DEFAULT FALSE;
+ALTER TABLE anonymous_scans ADD COLUMN IF NOT EXISTS lead_captured_at   TIMESTAMPTZ;

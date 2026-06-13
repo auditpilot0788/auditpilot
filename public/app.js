@@ -7,16 +7,24 @@
   'use strict';
 
   // ── DOM references ──────────────────────────────────────────────────────────
-  const urlInput    = document.getElementById('url-input');
-  const scanBtn     = document.getElementById('scan-btn');
-  const errorBox    = document.getElementById('error-box');
-  const stateForm   = document.getElementById('state-form');
-  const stateLoad   = document.getElementById('state-loading');
-  const stateSucc   = document.getElementById('state-success');
-  const loadingMsg  = document.getElementById('loading-msg');
-  const downloadLnk = document.getElementById('download-link');
-  const resetBtn    = document.getElementById('reset-btn');
-  const scoreStrip  = document.getElementById('score-strip');
+  const urlInput        = document.getElementById('url-input');
+  const scanBtn         = document.getElementById('scan-btn');
+  const errorBox        = document.getElementById('error-box');
+  const stateForm       = document.getElementById('state-form');
+  const stateLoad       = document.getElementById('state-loading');
+  const stateSucc       = document.getElementById('state-success');
+  const loadingMsg      = document.getElementById('loading-msg');
+  const downloadLnk     = document.getElementById('download-link');
+  const resetBtn        = document.getElementById('reset-btn');
+  const scoreStrip      = document.getElementById('score-strip');
+  const emailGate       = document.getElementById('email-gate');
+  const leadEmailInput  = document.getElementById('lead-email');
+  const leadBtn         = document.getElementById('lead-btn');
+  const leadError       = document.getElementById('lead-error');
+  const leadConsent     = document.getElementById('lead-consent');
+  const leadThanks      = document.getElementById('lead-thanks');
+  const issueTeaserEl   = document.getElementById('issues-teaser');
+  const downloadSection = document.getElementById('download-section');
 
   const progressSteps = [
     document.getElementById('ps-1'),
@@ -32,8 +40,10 @@
     'Generating professional PDF report…'
   ];
 
-  let stepTimer = null;
+  let stepTimer      = null;
   let currentBlobUrl = null;
+  let lastScannedUrl = '';
+  let lastScoreData  = null;
 
   // ── Validation ──────────────────────────────────────────────────────────────
 
@@ -128,15 +138,51 @@
         </div>`).join('');
     }
 
-    // Revoke previous blob URL to free memory
+    // Store blob and score for the lead-submit step
+    lastScoreData = scoreData;
     if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
     currentBlobUrl = URL.createObjectURL(blob);
 
     downloadLnk.href     = currentBlobUrl;
     downloadLnk.download = filename;
 
+    // Build top-issues teaser
+    issueTeaserEl.innerHTML = '';
+    if (scoreData) {
+      const bullets = [];
+      if (scoreData.critical > 0)
+        bullets.push(`<strong style="color:#fca5a5">${scoreData.critical}</strong> critical issue${scoreData.critical !== 1 ? 's' : ''} blocking screen reader access`);
+      if (scoreData.serious > 0)
+        bullets.push(`<strong style="color:#fdba74">${scoreData.serious}</strong> serious WCAG 2.1 AA violation${scoreData.serious !== 1 ? 's' : ''}`);
+      if (scoreData.moderate > 0)
+        bullets.push(`<strong style="color:#fde68a">${scoreData.moderate}</strong> moderate accessibility issue${scoreData.moderate !== 1 ? 's' : ''}`);
+      if (bullets.length === 0 && scoreData.total > 0)
+        bullets.push(`<strong style="color:#fdba74">${scoreData.total}</strong> accessibility issue${scoreData.total !== 1 ? 's' : ''} detected`);
+      if (bullets.length === 0)
+        bullets.push('No critical issues detected — full report includes details');
+      bullets.push('Full report includes code-level fixes &amp; legal statement');
+      issueTeaserEl.innerHTML = bullets.slice(0, 3).map(b =>
+        `<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;">
+          <span style="color:#C9A84C;flex-shrink:0;margin-top:1px;">•</span>
+          <span style="color:rgba(255,255,255,0.65);font-size:13px;line-height:1.5;">${b}</span>
+        </div>`
+      ).join('');
+    }
+
+    // Show email gate; reset state
+    emailGate.hidden       = false;
+    leadThanks.hidden      = true;
+    downloadSection.hidden = true;
+    leadEmailInput.value   = '';
+    leadConsent.checked    = false;
+    leadError.hidden       = true;
+    leadError.textContent  = '';
+    leadBtn.disabled       = false;
+    leadBtn.textContent    = 'Email me the full report →';
+
     stateLoad.hidden = true;
     stateSucc.hidden = false;
+    leadEmailInput.focus();
   }
 
   function goForm() {
@@ -145,6 +191,17 @@
     stateSucc.hidden = true;
     stateLoad.hidden = true;
     stateForm.hidden = false;
+    // Reset lead-capture state for the next scan
+    issueTeaserEl.innerHTML = '';
+    emailGate.hidden        = false;
+    leadThanks.hidden       = true;
+    downloadSection.hidden  = true;
+    leadEmailInput.value    = '';
+    leadConsent.checked     = false;
+    leadError.hidden        = true;
+    leadError.textContent   = '';
+    leadBtn.disabled        = false;
+    leadBtn.textContent     = 'Email me the full report →';
     urlInput.value = '';
     scanBtn.disabled = false;
     urlInput.focus();
@@ -307,6 +364,7 @@
       return;
     }
 
+    lastScannedUrl   = normalized;
     scanBtn.disabled = true;
     goLoading();
 
@@ -374,6 +432,45 @@
     }
   }
 
+  // ── Lead email submit ────────────────────────────────────────────────────────
+
+  async function submitLeadEmail() {
+    const email = leadEmailInput.value.trim();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      leadError.textContent = 'Please enter a valid email address.';
+      leadError.hidden = false;
+      leadEmailInput.focus();
+      return;
+    }
+
+    leadError.hidden    = true;
+    leadBtn.disabled    = true;
+    leadBtn.textContent = 'Sending…';
+
+    const marketingConsent = leadConsent ? leadConsent.checked : false;
+
+    try {
+      await fetch('/api/lead', {
+        method:      'POST',
+        headers:     { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body:        JSON.stringify({
+          email,
+          url:               lastScannedUrl,
+          score:             lastScoreData,
+          marketingConsent,
+          source:            'free_scanner'
+        })
+      });
+    } catch { /* non-fatal — never block the download */ }
+
+    // Show thanks + reveal download button (no auto-click — user decides)
+    emailGate.hidden       = true;
+    leadThanks.hidden      = false;
+    downloadSection.hidden = false;
+  }
+
   // ── Event listeners ─────────────────────────────────────────────────────────
 
   scanBtn.addEventListener('click', startScan);
@@ -385,6 +482,9 @@
   urlInput.addEventListener('input', () => {
     if (!errorBox.hidden) clearError();
   });
+
+  leadBtn.addEventListener('click', submitLeadEmail);
+  leadEmailInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitLeadEmail(); });
 
   resetBtn.addEventListener('click', goForm);
 

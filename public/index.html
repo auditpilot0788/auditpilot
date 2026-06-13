@@ -192,7 +192,7 @@
           </div>
         </div>
 
-        <!-- State: Success (unchanged) -->
+        <!-- State: Success -->
         <div id="state-success" class="state-success" hidden aria-live="polite">
           <div class="success-icon" aria-hidden="true">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -200,10 +200,81 @@
               <polyline points="22 4 12 14.01 9 11.01"/>
             </svg>
           </div>
-          <h2 class="success-title">Report Ready!</h2>
-          <p class="success-subtitle">Your accessibility audit report has been generated.</p>
+          <h2 class="success-title">Scan complete!</h2>
+          <p class="success-subtitle">Here's a preview of what we found.</p>
+
+          <!-- Score strip — always visible -->
           <div id="score-strip" class="score-strip" aria-label="Scan result summary"></div>
-          <div class="success-actions">
+
+          <!-- Top issues teaser — populated by JS -->
+          <div id="issues-teaser"
+            aria-label="Top issues preview"
+            style="
+              text-align:left; max-width:420px; margin:16px auto 24px;
+              background:rgba(255,255,255,0.04);
+              border:1px solid rgba(255,255,255,0.08);
+              border-radius:10px; padding:16px 20px;
+            "></div>
+
+          <!-- Email gate — shown first -->
+          <div id="email-gate" class="success-actions">
+            <p style="color:rgba(255,255,255,0.7); font-size:14px; font-weight:600; margin-bottom:14px;">
+              Get the full report with code-level fixes →
+            </p>
+            <div id="lead-input-row" style="
+              display:flex; border-radius:8px; overflow:hidden;
+              border:1.5px solid #C9A84C;
+              background:rgba(255,255,255,0.06); margin-bottom:10px;
+            ">
+              <input
+                type="email"
+                id="lead-email"
+                placeholder="your@email.com"
+                autocomplete="email"
+                aria-label="Your email address"
+                style="
+                  flex:1; background:transparent; border:none; outline:none;
+                  color:#fff; font-size:14px; padding:0 16px; height:50px;
+                  font-family:inherit;
+                "
+              >
+              <button id="lead-btn" type="button" style="
+                background:#C9A84C; border:none; color:#fff;
+                font-size:13px; font-weight:700; padding:0 22px; height:50px;
+                cursor:pointer; font-family:inherit; white-space:nowrap;
+                text-shadow:0 1px 2px rgba(0,0,0,0.3);
+              ">Email me the full report →</button>
+            </div>
+            <div id="lead-error" role="alert" aria-live="polite"
+              style="color:#fca5a5; font-size:12px; margin-bottom:8px;" hidden></div>
+            <!-- GDPR consent — unchecked by default -->
+            <label for="lead-consent" style="
+              display:flex; align-items:flex-start; gap:10px; cursor:pointer;
+              color:rgba(255,255,255,0.45); font-size:12px; line-height:1.5;
+              text-align:left; max-width:420px; margin:0 auto;
+            ">
+              <input
+                type="checkbox"
+                id="lead-consent"
+                name="lead-consent"
+                style="margin-top:2px; accent-color:#C9A84C; flex-shrink:0;"
+              >
+              Send me accessibility updates and compliance insights (optional)
+            </label>
+          </div>
+
+          <!-- Thanks message — revealed after submit -->
+          <div id="lead-thanks" hidden style="margin:12px 0 8px;">
+            <p style="
+              color:#4ade80; font-size:15px; font-weight:600; margin-bottom:4px;
+            ">Thanks! Your report is ready.</p>
+            <p style="color:rgba(255,255,255,0.45); font-size:12px;">
+              Click below to download your PDF.
+            </p>
+          </div>
+
+          <!-- Download section — revealed after email submitted -->
+          <div id="download-section" class="success-actions" hidden>
             <a id="download-link" class="download-btn" href="#" download>
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -212,8 +283,9 @@
               </svg>
               Download PDF Report
             </a>
-            <button id="reset-btn" class="reset-btn" type="button">Scan Another URL</button>
           </div>
+
+          <button id="reset-btn" class="reset-btn" type="button">Scan Another URL</button>
         </div>
 
       </div><!-- /scan tool -->
