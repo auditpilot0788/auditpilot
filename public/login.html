@@ -31,8 +31,8 @@
     .nav-logo-text { display: flex; flex-direction: column; }
     .nav-logo-name { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 0.3px; line-height: 1; }
     .nav-logo-sub  { color: #C9A84C; font-size: 7px; font-weight: 500; letter-spacing: 2.5px; margin-top: 3px; }
-    .nav-back { color: rgba(255,255,255,0.45); font-size: 13px; text-decoration: none; }
-    .nav-back:hover { color: rgba(255,255,255,0.75); }
+    .nav-back { color: rgba(255,255,255,0.65); font-size: 13px; text-decoration: none; }
+    .nav-back:hover { color: rgba(255,255,255,0.9); }
 
     /* ── Main layout ── */
     main {
@@ -72,7 +72,7 @@
       transition: background 0.15s, color 0.15s;
       font-family: inherit;
       background: transparent;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255,255,255,0.65);
     }
     .tab-btn.active {
       background: #C9A84C;
@@ -88,7 +88,7 @@
     }
     .form-subtitle {
       font-size: 13px;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255,255,255,0.65);
       margin-bottom: 24px;
       line-height: 1.5;
     }
@@ -117,7 +117,7 @@
       transition: border-color 0.15s;
     }
     .field input:focus { border-color: #C9A84C; }
-    .field input::placeholder { color: rgba(255,255,255,0.25); }
+    .field input::placeholder { color: rgba(255,255,255,0.55); }
     .field input.error { border-color: #e05555; }
 
     /* ── Submit button ── */
@@ -166,7 +166,7 @@
     /* ── Divider ── */
     .divider {
       text-align: center;
-      color: rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.65);
       font-size: 11px;
       margin: 20px 0 0;
     }
@@ -243,7 +243,7 @@
             <input type="email" id="reg-email" placeholder="you@agency.com" autocomplete="email" required>
           </div>
           <div class="field">
-            <label for="reg-password">Password <span style="color:rgba(255,255,255,0.3);font-weight:400">(min 8 characters)</span></label>
+            <label for="reg-password">Password <span style="color:rgba(255,255,255,0.55);font-weight:400">(min 8 characters)</span></label>
             <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password" required>
           </div>
           <button type="submit" class="submit-btn" id="register-btn">

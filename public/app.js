@@ -273,7 +273,7 @@
         </a>
         <button onclick="this.closest('.ap-modal').remove()" style="
           background: none; border: none;
-          color: rgba(255,255,255,0.35);
+          color: rgba(255,255,255,0.65);
           font-size: 13px; cursor: pointer; padding: 8px;
         ">
           No thanks
@@ -322,7 +322,7 @@
         </a>
         <button onclick="this.closest('.ap-modal').remove()" style="
           background: none; border: none;
-          color: rgba(255,255,255,0.35);
+          color: rgba(255,255,255,0.65);
           font-size: 13px; cursor: pointer; padding: 8px;
         ">
           Maybe later

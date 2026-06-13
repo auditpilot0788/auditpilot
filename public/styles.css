@@ -116,7 +116,7 @@ a { color: inherit; text-decoration: none; }
   padding: 0 14px 0 42px; outline: none;
   transition: border-color .2s, background .2s;
 }
-.url-input::placeholder { color: rgba(255,255,255,.28); }
+.url-input::placeholder { color: rgba(255,255,255,.55); }
 .url-input:focus { border-color: var(--accent); background: rgba(255,255,255,.1); }
 
 .scan-btn {
@@ -129,7 +129,7 @@ a { color: inherit; text-decoration: none; }
 .scan-btn:active { transform: scale(.98); }
 .scan-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 
-.input-hint { font-size: 12px; color: rgba(255,255,255,.3); text-align: left; }
+.input-hint { font-size: 12px; color: rgba(255,255,255,.65); text-align: left; }
 .error-box {
   margin-top: 12px; padding: 11px 16px;
   background: rgba(220,38,38,.14); border: 1px solid rgba(220,38,38,.3);
@@ -145,11 +145,11 @@ a { color: inherit; text-decoration: none; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-.loading-msg { font-size: 13px; color: rgba(255,255,255,.45); margin-bottom: 26px; }
+.loading-msg { font-size: 13px; color: rgba(255,255,255,.65); margin-bottom: 26px; }
 .progress-steps { display: flex; flex-direction: column; gap: 9px; max-width: 240px; margin: 0 auto; text-align: left; }
 .p-step {
   display: flex; align-items: center; gap: 11px;
-  font-size: 12px; color: rgba(255,255,255,.35);
+  font-size: 12px; color: rgba(255,255,255,.65);
   transition: color .3s;
 }
 .p-step.active { color: rgba(255,255,255,.9); }
@@ -171,7 +171,7 @@ a { color: inherit; text-decoration: none; }
   margin: 0 auto 18px; color: #4ade80;
 }
 .success-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-.success-subtitle { font-size: 13px; color: rgba(255,255,255,.45); margin-bottom: 20px; }
+.success-subtitle { font-size: 13px; color: rgba(255,255,255,.65); margin-bottom: 20px; }
 
 .score-strip {
   display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 2px;
@@ -180,7 +180,7 @@ a { color: inherit; text-decoration: none; }
 }
 .strip-item { padding: 4px 16px; text-align: center; }
 .strip-item strong { display: block; font-size: 22px; font-weight: 800; color: #fff; line-height: 1; }
-.strip-item span { font-size: 10px; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: .8px; }
+.strip-item span { font-size: 10px; color: rgba(255,255,255,.65); text-transform: uppercase; letter-spacing: .8px; }
 
 .success-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 .download-btn {
@@ -204,7 +204,7 @@ a { color: inherit; text-decoration: none; }
 }
 .trust-item {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: rgba(255,255,255,.4);
+  font-size: 12px; color: rgba(255,255,255,.65);
 }
 .trust-item svg { color: #4ade80; flex-shrink: 0; }
 
@@ -241,8 +241,8 @@ a { color: inherit; text-decoration: none; }
   flex-wrap: wrap; gap: 14px;
 }
 .footer-brand { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 3px; }
-.footer-tag { font-size: 11px; color: rgba(255,255,255,.38); }
-.footer-note { font-size: 11px; color: rgba(255,255,255,.28); }
+.footer-tag { font-size: 11px; color: rgba(255,255,255,.65); }
+.footer-note { font-size: 11px; color: rgba(255,255,255,.65); }
 
 /* ── Utilities ───────────────────────────────────────────── */
 [hidden] { display: none !important; }
