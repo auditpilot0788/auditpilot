@@ -11,7 +11,8 @@ function getAnonId(req, res) {
     res.cookie('ap_anon_id', anonId, {
       maxAge:   365 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      sameSite: 'lax'
+      secure:   true,
+      sameSite: 'none'
     });
   }
   return anonId;

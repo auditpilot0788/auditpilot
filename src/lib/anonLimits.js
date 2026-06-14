@@ -8,7 +8,6 @@ async function checkAnonLimit(anonId, ipAddress, fingerprint) {
     FROM anonymous_scans
     WHERE (
       anon_id = $1
-      OR ip_address = $2
       OR (browser_fingerprint = $3 AND browser_fingerprint != 'unknown')
     )
     AND scanned_at > NOW() - INTERVAL '30 days'
