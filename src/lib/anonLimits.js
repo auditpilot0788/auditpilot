@@ -8,10 +8,10 @@ async function checkAnonLimit(anonId, ipAddress, fingerprint) {
     FROM anonymous_scans
     WHERE (
       anon_id = $1
-      OR (browser_fingerprint = $3 AND browser_fingerprint != 'unknown')
+      OR (browser_fingerprint = $2 AND browser_fingerprint != 'unknown')
     )
     AND scanned_at > NOW() - INTERVAL '30 days'
-  `, [anonId, ipAddress, fingerprint]);
+  `, [anonId, fingerprint]);
 
   const scansUsed = parseInt(result.rows[0].count, 10);
   return {
