@@ -130,15 +130,20 @@ app.post('/scan', optionalAuth, async (req, res) => {
     const pdfPath = await generateReport(normalizedUrl, scanResults);
     console.log(`[AuditPilot] PDF ready → ${path.basename(pdfPath)}`);
 
-    // Step 3: Record usage (non-blocking — a DB hiccup must not abort the response)
+    // Step 3: Record usage — awaited before streaming so the DB write
+    // completes while the request context is still alive on Railway.
     if (req.user) {
-      recordScan(req.user.sub, normalizedUrl, path.basename(pdfPath)).catch(err =>
-        console.error('[AuditPilot] Failed to record scan usage:', err.message)
-      );
+      try {
+        await recordScan(req.user.sub, normalizedUrl, path.basename(pdfPath));
+      } catch (err) {
+        console.error('[AuditPilot] Failed to record scan usage:', err.message);
+      }
     } else {
-      recordAnonScan(anonId, ipAddress, fingerprint, normalizedUrl).catch(err =>
-        console.error('[AuditPilot] Failed to record anonymous scan:', err.message)
-      );
+      try {
+        await recordAnonScan(anonId, ipAddress, fingerprint, normalizedUrl);
+      } catch (err) {
+        console.error('[AuditPilot] Failed to record anonymous scan:', err.message);
+      }
     }
 
     // Step 4: Stream the PDF back to the client
