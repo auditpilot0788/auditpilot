@@ -46,6 +46,9 @@ app.get('/pricing',   (req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/login',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 app.get('/agencies',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'agencies.html')));
+app.get('/impressum', (req, res) => res.sendFile(path.join(__dirname, 'public', 'impressum.html')));
+app.get('/privacy',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
+app.get('/terms',     (req, res) => res.sendFile(path.join(__dirname, 'public', 'terms.html')));
 
 // ── Ensure storage directories exist ─────────────────────────────────────────
 ['reports', 'screenshots'].forEach(dir => {

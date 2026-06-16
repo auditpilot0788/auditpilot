@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AGB — AuditPilot</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0A1F44; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: #C9A84C; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 48px; border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky; top: 0; background: #0A1F44; z-index: 100;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo-name { color: #fff; font-size: 15px; font-weight: 700; line-height: 1; }
+    .nav-logo-sub  { color: #C9A84C; font-size: 7px; font-weight: 500; letter-spacing: 2.5px; margin-top: 3px; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-link  { color: rgba(255,255,255,0.7); font-size: 13px; text-decoration: none; }
+    .nav-link:hover { color: #fff; text-decoration: none; }
+    .nav-cta   { background: #C9A84C; color: #0A1F44; font-size: 13px; font-weight: 700; padding: 8px 18px; border-radius: 6px; text-decoration: none; }
+
+    main { flex: 1; max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; width: 100%; }
+    h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+    .subtitle { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 48px; }
+    h2 { font-size: 16px; font-weight: 700; color: #C9A84C; margin: 36px 0 12px; text-transform: uppercase; letter-spacing: 1px; }
+    p  { color: rgba(255,255,255,0.75); font-size: 14px; line-height: 1.75; margin-bottom: 12px; }
+    ul { color: rgba(255,255,255,0.75); font-size: 14px; line-height: 1.75; margin: 8px 0 12px 20px; }
+    li { margin-bottom: 4px; }
+
+    .disclaimer {
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.35);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 12px 0 24px;
+    }
+    .disclaimer p { color: rgba(255,255,255,0.85); margin-bottom: 8px; }
+    .disclaimer p:last-child { margin-bottom: 0; }
+
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 13px; }
+    th { text-align: left; padding: 10px 14px; background: rgba(255,255,255,0.06); color: #C9A84C; font-weight: 700; }
+    td { padding: 10px 14px; border-top: 1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); }
+
+    .footer {
+      text-align: center; padding: 24px;
+      color: rgba(255,255,255,0.4); font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer a { color: rgba(255,255,255,0.5); margin: 0 12px; text-decoration: none; }
+    .footer a:hover { color: #fff; }
+
+    @media (max-width: 600px) { .nav { padding: 14px 20px; } .nav-links { gap: 14px; } }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+      <path d="M18 3L30 9L30 20Q30 29 18 33Q6 29 6 20L6 9Z" fill="#0A1F44"/>
+      <path d="M18 6L27 11L27 20Q27 27 18 31Q9 27 9 20L9 11Z" fill="#0D2D6B"/>
+      <path d="M18 9L25 13L25 20Q25 26 18 30Q11 26 11 20L11 13Z" fill="#1A3F8F"/>
+      <rect x="6" y="9" width="24" height="2" rx="1" fill="#C9A84C"/>
+      <path d="M12 19.5L16 24L24 14" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div style="display:flex;flex-direction:column;">
+      <span class="nav-logo-name">AuditPilot</span>
+      <span class="nav-logo-sub">EAA COMPLIANCE</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/pricing" class="nav-link">Pricing</a>
+    <a href="/agencies" class="nav-link">For agencies</a>
+    <a href="/login" class="nav-cta">Free audit →</a>
+  </div>
+</nav>
+
+<main>
+  <h1>Allgemeine Geschäftsbedingungen</h1>
+  <p class="subtitle">Terms of Service — Stand: Juni 2026</p>
+
+  <h2>1. Geltungsbereich</h2>
+  <p>
+    Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Leistungen von AuditPilot,
+    betrieben von Ankit Chauhan, Bremer Strasse 17, 65760 Eschborn, Deutschland
+    (nachfolgend „Anbieter").
+    Mit der Nutzung des Services erklären Sie sich mit diesen AGB einverstanden.
+  </p>
+
+  <h2>2. Leistungsbeschreibung</h2>
+  <p>
+    AuditPilot ist ein automatisiertes Web-Accessibility-Scanning-Tool. Der Service analysiert
+    Websites auf Barrierefreiheitsanforderungen gemäß WCAG 2.1 AA und der European Accessibility Act (EAA)
+    und erstellt darauf basierende PDF-Berichte.
+  </p>
+  <p>
+    Die generierten Berichte basieren ausschließlich auf automatisierten Tests (axe-core)
+    und stellen keine Rechtsberatung dar.
+  </p>
+
+  <h2>3. Haftungsausschluss — Wichtiger Hinweis</h2>
+  <div class="disclaimer">
+    <p>
+      <strong>Die von AuditPilot erstellten Berichte sind das Ergebnis automatisierter Tests
+      und erheben keinen Anspruch auf Vollständigkeit.</strong>
+    </p>
+    <p>
+      AuditPilot übernimmt keine Haftung dafür, dass eine als konform bewertete Website
+      tatsächlich allen gesetzlichen Anforderungen entspricht.
+      Die Nutzung der Berichte erfolgt auf eigene Verantwortung des Nutzers.
+    </p>
+    <p>
+      <em>Reports are automated and do not constitute legal advice or guarantee full legal compliance.
+      Users remain solely responsible for ensuring compliance with applicable laws.</em>
+    </p>
+  </div>
+
+  <h2>4. Preise und Zahlung</h2>
+  <table>
+    <thead>
+      <tr><th>Plan</th><th>Preis</th><th>Scans/Monat</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Free</td><td>€0</td><td>3</td></tr>
+      <tr><td>Starter</td><td>€99/Monat</td><td>20</td></tr>
+      <tr><td>Agency</td><td>€299/Monat</td><td>Unbegrenzt</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li>Zahlung erfolgt über Stripe (Kreditkarte, SEPA-Lastschrift, weitere Methoden)</li>
+    <li>Preise verstehen sich inklusive der gesetzlichen Mehrwertsteuer, sofern nicht anders angegeben</li>
+    <li>Die Abrechnung erfolgt monatlich im Voraus</li>
+    <li>Scan-Kontingente werden am 1. eines jeden Kalendermonats zurückgesetzt</li>
+  </ul>
+
+  <h2>5. Kündigung / Cancellation</h2>
+  <ul>
+    <li>Monatliche Abonnements können jederzeit zum Ende des aktuellen Abrechnungszeitraums gekündigt werden</li>
+    <li>Nach Kündigung besteht Zugang bis zum Ende der bereits bezahlten Periode</li>
+    <li>Kündigung über das Dashboard oder per E-Mail an
+      <a href="mailto:auditpilot0788@gmail.com">auditpilot0788@gmail.com</a>
+    </li>
+  </ul>
+
+  <h2>6. Widerrufsrecht (Right of Withdrawal)</h2>
+  <p>
+    EU-Verbrauchern steht grundsätzlich ein 14-tägiges Widerrufsrecht zu.
+    Durch die unmittelbare Nutzung des Services nach dem Kauf stimmt der Nutzer zu,
+    dass das Widerrufsrecht mit Beginn der Leistungserbringung erlischt.
+  </p>
+  <p>
+    Für Widerrufsanfragen wenden Sie sich an:
+    <a href="mailto:auditpilot0788@gmail.com">auditpilot0788@gmail.com</a>
+  </p>
+
+  <h2>7. Nutzungsbeschränkungen</h2>
+  <ul>
+    <li>Die automatisierte Nutzung der API ohne ausdrückliche Genehmigung ist untersagt</li>
+    <li>Der Service darf nicht zur Analyse von Websites ohne Berechtigung des Eigentümers genutzt werden</li>
+    <li>Der Weiterverkauf von Scan-Kapazitäten ist nicht gestattet</li>
+  </ul>
+
+  <h2>8. Verfügbarkeit</h2>
+  <p>
+    Der Anbieter strebt eine hohe Verfügbarkeit des Services an, übernimmt jedoch keine Garantie
+    für eine unterbrechungsfreie Verfügbarkeit. Wartungsarbeiten werden nach Möglichkeit vorab angekündigt.
+  </p>
+
+  <h2>9. Anwendbares Recht und Gerichtsstand</h2>
+  <p>
+    Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts (CISG).
+    Gerichtsstand für alle Streitigkeiten aus diesem Vertragsverhältnis ist Eschborn,
+    sofern der Nutzer Kaufmann oder eine juristische Person des öffentlichen Rechts ist.
+  </p>
+
+  <h2>10. Salvatorische Klausel</h2>
+  <p>
+    Sollten einzelne Bestimmungen dieser AGB unwirksam oder undurchführbar sein oder werden,
+    bleibt die Wirksamkeit der übrigen Bestimmungen davon unberührt.
+  </p>
+</main>
+
+<footer class="footer">
+  <a href="/impressum">Impressum</a>
+  <a href="/privacy">Datenschutz</a>
+  <a href="/terms">AGB</a>
+  <span style="margin:0 12px;">© 2026 AuditPilot</span>
+</footer>
+
+</body>
+</html>
