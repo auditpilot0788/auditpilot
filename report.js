@@ -770,10 +770,13 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
   <div class="cover-eyebrow">Accessibility Audit Report</div>
   ${agencyBranding
     ? (agencyBranding.logoB64
-        ? `<img src="data:${agencyBranding.logoMime};base64,${agencyBranding.logoB64}"
-               alt="${escapeHtml(agencyBranding.name)}"
-               style="max-height:80px;max-width:260px;object-fit:contain;margin-bottom:12px;">`
-        : `<div class="cover-logo" style="font-size:36px;">${escapeHtml(agencyBranding.name)}</div>`
+        ? `<div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:12px 20px;display:inline-flex;align-items:center;justify-content:center;">
+               <img src="data:${agencyBranding.logoMime};base64,${agencyBranding.logoB64}"
+                    alt="${escapeHtml(agencyBranding.name)}"
+                    style="max-height:70px;max-width:220px;object-fit:contain;">
+             </div>
+             <div style="font-size:28px;font-weight:700;color:#fff;margin-top:10px;letter-spacing:-0.5px;">${escapeHtml(agencyBranding.name)}</div>`
+        : `<div class="cover-logo" style="font-size:42px;">${escapeHtml(agencyBranding.name)}</div>`
       ) + (agencyBranding.tagline
         ? `<div class="cover-tagline">${escapeHtml(agencyBranding.tagline)}</div>`
         : '')
