@@ -71,3 +71,10 @@ ALTER TABLE anonymous_scans ADD COLUMN IF NOT EXISTS email              VARCHAR(
 ALTER TABLE anonymous_scans ADD COLUMN IF NOT EXISTS source             VARCHAR(50);
 ALTER TABLE anonymous_scans ADD COLUMN IF NOT EXISTS marketing_consent  BOOLEAN DEFAULT FALSE;
 ALTER TABLE anonymous_scans ADD COLUMN IF NOT EXISTS lead_captured_at   TIMESTAMPTZ;
+
+-- ── White-label branding (Agency plan) ───────────────────────────────────────
+
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS agency_name      VARCHAR(100);
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS agency_tagline   VARCHAR(150);
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS agency_logo_b64  TEXT;
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS agency_logo_mime VARCHAR(20);

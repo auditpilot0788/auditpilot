@@ -16,6 +16,7 @@ const { generateReport } = require('./report');
 const authRouter       = require('./src/routes/auth');
 const billingRouter    = require('./src/routes/billing');
 const leadRouter       = require('./src/routes/lead');
+const brandingRouter   = require('./src/routes/branding');
 const { requireAuth, optionalAuth } = require('./src/middleware/auth');
 const { canUserScan, recordScan }                = require('./src/lib/scanLimits');
 const { getAnonId }                              = require('./src/middleware/anonymousTracker');
@@ -40,6 +41,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth',    authRouter);
 app.use('/api/billing', billingRouter);
 app.use('/api',         leadRouter);
+app.use('/api',         brandingRouter);
 
 // ── Static page routes (extensionless URLs) ───────────────────────────────────
 app.get('/pricing',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'pricing.html')));
@@ -129,8 +131,28 @@ app.post('/scan', optionalAuth, async (req, res) => {
     const scanResults = await scanWebsite(normalizedUrl);
     console.log(`[AuditPilot] Scan complete — score: ${scanResults.score}, issues: ${scanResults.totalIssues}`);
 
-    // Step 2: Generate the PDF report
-    const pdfPath = await generateReport(normalizedUrl, scanResults);
+    // Step 2: Fetch agency branding (agency plan users only)
+    let agencyBranding = null;
+    if (req.user) {
+      const brandingRow = await query(
+        `SELECT agency_name, agency_tagline, agency_logo_b64, agency_logo_mime, plan
+           FROM subscriptions WHERE user_id = $1 AND status = 'active'
+           ORDER BY created_at DESC LIMIT 1`,
+        [req.user.sub]
+      ).catch(() => ({ rows: [] }));
+      const b = brandingRow.rows[0];
+      if (b?.plan === 'agency' && b?.agency_name) {
+        agencyBranding = {
+          name:     b.agency_name,
+          tagline:  b.agency_tagline || '',
+          logoB64:  b.agency_logo_b64  || null,
+          logoMime: b.agency_logo_mime || null
+        };
+      }
+    }
+
+    // Step 2b: Generate the PDF report
+    const pdfPath = await generateReport(normalizedUrl, scanResults, agencyBranding);
     console.log(`[AuditPilot] PDF ready → ${path.basename(pdfPath)}`);
 
     // Step 3: Record usage — awaited before streaming so the DB write

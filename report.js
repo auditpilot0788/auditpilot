@@ -589,7 +589,7 @@ function nextStepsHtml(counts, totalIssues, groupedViolations) {
 
 // ── Full HTML template ─────────────────────────────────────────────────────────
 
-function buildReportHtml(url, scanResults) {
+function buildReportHtml(url, scanResults, agencyBranding = null) {
   const {
     score, counts, totalIssues, groupedViolations, screenshotPath,
     eaaScore, eaaRisk, elementScreenshots, duration, pagesScanned
@@ -604,6 +604,8 @@ function buildReportHtml(url, scanResults) {
   const priorityFixes = getPriorityFixes(groupedViolations);
   const agencyName   = config.agency.name;
   const version      = config.version;
+  const brandName      = agencyBranding ? escapeHtml(agencyBranding.name) : agencyName;
+  const brandNameUpper = brandName.toUpperCase();
 
   // Pre-build sections that contain complex logic
   const compSection    = complianceDashboardHtml(score, eaaScore, eaaRisk);
@@ -766,8 +768,18 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
 ══════════════════════════════════════════ -->
 <div class="cover page">
   <div class="cover-eyebrow">Accessibility Audit Report</div>
-  <div class="cover-logo">Audit<span>Pilot</span></div>
-  <div class="cover-tagline">Generate Client-Ready Reports in 2 Minutes</div>
+  ${agencyBranding
+    ? (agencyBranding.logoB64
+        ? `<img src="data:${agencyBranding.logoMime};base64,${agencyBranding.logoB64}"
+               alt="${escapeHtml(agencyBranding.name)}"
+               style="max-height:80px;max-width:260px;object-fit:contain;margin-bottom:12px;">`
+        : `<div class="cover-logo" style="font-size:36px;">${escapeHtml(agencyBranding.name)}</div>`
+      ) + (agencyBranding.tagline
+        ? `<div class="cover-tagline">${escapeHtml(agencyBranding.tagline)}</div>`
+        : '')
+    : `<div class="cover-logo">Audit<span>Pilot</span></div>
+  <div class="cover-tagline">Generate Client-Ready Reports in 2 Minutes</div>`
+  }
   <div class="cover-divider"></div>
 
   <div class="cover-url">${escapeHtml(url)}</div>
@@ -810,7 +822,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
 ══════════════════════════════════════════ -->
 <div class="content page">
   <div class="page-hdr">
-    <span class="page-hdr-brand">AUDITPILOT</span>
+    <span class="page-hdr-brand">${brandNameUpper}</span>
     <span class="page-hdr-url">${escapeHtml(url)}</span>
   </div>
 
@@ -875,7 +887,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
 ══════════════════════════════════════════ -->
 <div class="content page">
   <div class="page-hdr">
-    <span class="page-hdr-brand">AUDITPILOT</span>
+    <span class="page-hdr-brand">${brandNameUpper}</span>
     <span class="page-hdr-url">${escapeHtml(url)}</span>
   </div>
 
@@ -890,7 +902,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
 ══════════════════════════════════════════ -->
 <div class="content page">
   <div class="page-hdr">
-    <span class="page-hdr-brand">AUDITPILOT</span>
+    <span class="page-hdr-brand">${brandNameUpper}</span>
     <span class="page-hdr-url">${escapeHtml(url)}</span>
   </div>
 
@@ -905,7 +917,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
 ══════════════════════════════════════════ -->
 <div class="content page">
   <div class="page-hdr">
-    <span class="page-hdr-brand">AUDITPILOT</span>
+    <span class="page-hdr-brand">${brandNameUpper}</span>
     <span class="page-hdr-url">${escapeHtml(url)}</span>
   </div>
 
@@ -964,7 +976,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
 ══════════════════════════════════════════ -->
 <div class="content page">
   <div class="page-hdr">
-    <span class="page-hdr-brand">AUDITPILOT</span>
+    <span class="page-hdr-brand">${brandNameUpper}</span>
     <span class="page-hdr-url">${escapeHtml(url)}</span>
   </div>
 
@@ -979,7 +991,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
 ══════════════════════════════════════════ -->
 <div class="content">
   <div class="page-hdr">
-    <span class="page-hdr-brand">AUDITPILOT</span>
+    <span class="page-hdr-brand">${brandNameUpper}</span>
     <span class="page-hdr-url">${escapeHtml(url)}</span>
   </div>
 
@@ -1006,7 +1018,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
     <p>We aim to respond within 2 business days.</p>
 
     <div class="stmt-section">Assessment Approach</div>
-    <p><span class="ph">[COMPANY NAME]</span> assessed this website using AuditPilot and axe-core on ${scanDate}.
+    <p><span class="ph">[COMPANY NAME]</span> assessed this website using ${agencyBranding ? escapeHtml(agencyBranding.name) : 'AuditPilot'} and axe-core on ${scanDate}.
     Accessibility score: <strong>${score}/100</strong>. EAA readiness: <strong>${eaaScore}/100 (${eaaRisk})</strong>.
     ${totalIssues} issue${totalIssues !== 1 ? 's' : ''} identified.</p>
 
@@ -1016,7 +1028,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
   </div>
 
   <div class="footer-note">
-    Generated by ${agencyName} v${version} &bull; axe-core &bull; ${scanDate} &bull;
+    ${agencyBranding ? `Generated by ${escapeHtml(agencyBranding.name)}` : `Generated by ${agencyName} v${version}`} &bull; axe-core &bull; ${scanDate} &bull;
     Scan duration: ${duration}s &bull; Pages scanned: ${pagesScanned} &bull;
     ${escapeHtml(url)}
   </div>
@@ -1028,7 +1040,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
 
 // ── Main export ────────────────────────────────────────────────────────────────
 
-async function generateReport(url, scanResults) {
+async function generateReport(url, scanResults, agencyBranding = null) {
   let browser = null;
 
   try {
@@ -1037,7 +1049,7 @@ async function generateReport(url, scanResults) {
     const pdfName   = `auditpilot-${domain}-${timestamp}.pdf`;
     const pdfPath   = path.join(__dirname, 'reports', pdfName);
 
-    const htmlContent = buildReportHtml(url, scanResults);
+    const htmlContent = buildReportHtml(url, scanResults, agencyBranding);
 
     browser = await chromium.launch({
       executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH,
