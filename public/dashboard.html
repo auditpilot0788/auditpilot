@@ -327,9 +327,14 @@
 
       <div id="branding-status" style="display:none;font-size:13px;margin-bottom:12px;"></div>
 
-      <button id="save-branding-btn" style="height:42px;padding:0 24px;background:#C9A84C;border:none;border-radius:8px;color:#0A1F44;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;">
-        Save Branding
-      </button>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <button id="save-branding-btn" style="height:42px;padding:0 24px;background:#C9A84C;border:none;border-radius:8px;color:#0A1F44;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.15s;">
+          Save Branding
+        </button>
+        <button id="reset-branding-btn" style="height:42px;padding:0 18px;background:none;border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color 0.15s,color 0.15s;">
+          Reset to Default
+        </button>
+      </div>
     </div>
 
   </div><!-- /page -->
@@ -476,8 +481,28 @@
       } catch(e) { console.error('removeLogo error:', e); }
     }
 
+    async function resetBranding() {
+      if (!confirm('Are you sure? This will remove all your branding from reports and revert to AuditPilot defaults.')) return;
+      try {
+        const r = await fetch('/api/branding/reset', { method: 'DELETE', credentials: 'include' });
+        if (r.ok) {
+          document.getElementById('agency-name-input').value    = '';
+          document.getElementById('agency-tagline-input').value = '';
+          document.getElementById('agency-logo-input').value    = '';
+          document.getElementById('logo-existing-area').style.display = 'none';
+          document.getElementById('logo-upload-area').style.display   = 'block';
+          showBrandingStatus('✓ Branding reset to default.', 'success');
+        } else {
+          showBrandingStatus('Failed to reset branding. Please try again.', 'error');
+        }
+      } catch(e) {
+        showBrandingStatus('Network error. Please try again.', 'error');
+      }
+    }
+
     document.getElementById('save-branding-btn').addEventListener('click', saveBranding);
     document.getElementById('remove-logo-btn').addEventListener('click', removeLogo);
+    document.getElementById('reset-branding-btn').addEventListener('click', resetBranding);
 
     // ── Populate helpers ──────────────────────────────────────────────────────
 

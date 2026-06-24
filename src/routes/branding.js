@@ -85,6 +85,23 @@ router.post('/branding', requireAuth, async (req, res) => {
   }
 });
 
+// DELETE /api/branding/reset — clear all branding fields (revert to AuditPilot defaults)
+router.delete('/branding/reset', requireAuth, async (req, res) => {
+  try {
+    await query(
+      `UPDATE subscriptions
+          SET agency_name = NULL, agency_tagline = NULL,
+              agency_logo_b64 = NULL, agency_logo_mime = NULL
+        WHERE user_id = $1`,
+      [req.user.sub]
+    );
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('[branding] DELETE reset error:', err.message);
+    return res.status(500).json({ error: 'Failed to reset branding.' });
+  }
+});
+
 // DELETE /api/branding/logo — remove logo only
 router.delete('/branding/logo', requireAuth, async (req, res) => {
   try {
