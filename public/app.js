@@ -288,9 +288,16 @@
       padding:10px 16px; background:#0A1F44; flex-shrink:0;
     `;
     header.innerHTML = `
-      <span style="color:rgba(255,255,255,0.6);font-size:12px;">
-        Preview only — enter your email below to download this report
-      </span>`;
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        <span style="color:rgba(255,255,255,0.6);font-size:12px;">
+          Preview only — enter your email below to download this report
+        </span>
+        <span style="font-size:11px;color:rgba(201,168,76,0.85);">
+          This report shows AuditPilot branding —
+          <a href="/agencies" style="color:#C9A84C;font-weight:600;text-decoration:underline;text-underline-offset:2px;">upgrade to Agency</a>
+          to use your own company name and logo instead.
+        </span>
+      </div>`;
 
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
@@ -600,7 +607,7 @@
 
     leadError.hidden    = true;
     leadBtn.disabled    = true;
-    leadBtn.textContent = 'Sending…';
+    leadBtn.textContent = 'Unlocking…';
 
     const marketingConsent = leadConsent ? leadConsent.checked : false;
 
