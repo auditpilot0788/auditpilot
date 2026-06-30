@@ -408,7 +408,7 @@
       ">
         <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
         <h2 style="color:#fff; font-size:22px; font-weight:700; margin-bottom:12px;">
-          You have used your free scan!
+          You have used your 1st free scan!
         </h2>
         <p style="color:rgba(255,255,255,0.6); font-size:14px; line-height:1.7; margin-bottom:28px;">
           Create a free account to get
