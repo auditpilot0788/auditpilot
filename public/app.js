@@ -23,12 +23,14 @@
   const leadError       = document.getElementById('lead-error');
   const leadConsent     = document.getElementById('lead-consent');
   const leadThanks      = document.getElementById('lead-thanks');
-  const previewPanel    = document.getElementById('preview-panel');
-  const previewScoresEl = document.getElementById('preview-scores');
-  const previewViolEl   = document.getElementById('preview-violations');
-  const previewTotalEl  = document.getElementById('preview-total');
-  const signupUpsell    = document.getElementById('signup-upsell');
-  const downloadSection = document.getElementById('download-section');
+  const previewPanel      = document.getElementById('preview-panel');
+  const previewScoresEl   = document.getElementById('preview-scores');
+  const previewViolEl     = document.getElementById('preview-violations');
+  const previewTotalEl    = document.getElementById('preview-total');
+  const signupUpsell      = document.getElementById('signup-upsell');
+  const previewReportWrap = document.getElementById('preview-report-wrap');
+  const previewReportBtn  = document.getElementById('preview-report-btn');
+  const downloadSection   = document.getElementById('download-section');
 
   const progressSteps = [
     document.getElementById('ps-1'),
@@ -186,8 +188,9 @@
     stateLoad.hidden = true;
     stateForm.hidden = false;
     currentDownloadToken = null;
-    if (previewPanel) previewPanel.hidden = true;
-    if (signupUpsell) signupUpsell.hidden = true;
+    if (previewPanel)      previewPanel.hidden      = true;
+    if (signupUpsell)      signupUpsell.hidden      = true;
+    if (previewReportWrap) previewReportWrap.hidden = true;
     scoreStrip.hidden       = true;
     emailGate.hidden        = false;
     leadThanks.hidden       = true;
@@ -258,6 +261,60 @@
       : '');
   }
 
+  function openPdfPreview(url) {
+    if (document.getElementById('pdf-preview-modal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'pdf-preview-modal';
+    modal.style.cssText = `
+      position:fixed; inset:0; background:rgba(0,0,0,0.88);
+      display:flex; align-items:center; justify-content:center;
+      z-index:9998; padding:16px; box-sizing:border-box;
+    `;
+
+    const closeModal = () => modal.remove();
+
+    const inner = document.createElement('div');
+    inner.style.cssText = `
+      display:flex; flex-direction:column;
+      width:100%; max-width:900px; height:90vh;
+      background:#fff; border-radius:12px; overflow:hidden;
+      box-shadow:0 24px 80px rgba(0,0,0,0.6);
+    `;
+
+    const header = document.createElement('div');
+    header.style.cssText = `
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 16px; background:#0A1F44; flex-shrink:0;
+    `;
+    header.innerHTML = `
+      <span style="color:rgba(255,255,255,0.6);font-size:12px;">
+        Preview only — enter your email below to download this report
+      </span>`;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.textContent = '✕ Close';
+    closeBtn.style.cssText = `
+      background:none; border:1px solid rgba(255,255,255,0.22);
+      color:rgba(255,255,255,0.75); font-size:12px; font-weight:600;
+      padding:5px 12px; border-radius:6px; cursor:pointer; font-family:inherit;
+    `;
+    closeBtn.addEventListener('click', closeModal);
+    header.appendChild(closeBtn);
+
+    const iframe = document.createElement('iframe');
+    iframe.src   = url;
+    iframe.title = 'Report Preview';
+    iframe.style.cssText = 'flex:1; border:none; width:100%;';
+
+    inner.appendChild(header);
+    inner.appendChild(iframe);
+    modal.appendChild(inner);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.body.appendChild(modal);
+  }
+
   function goSuccessAnon(data) {
     clearInterval(stepTimer);
 
@@ -273,6 +330,11 @@
 
     renderPreview(data);
     previewPanel.hidden = false;
+
+    if (previewReportWrap) {
+      previewReportWrap.hidden = false;
+      previewReportBtn.onclick = () => openPdfPreview('/api/scan/pdf/' + data.token + '/view');
+    }
 
     emailGate.hidden       = false;
     leadThanks.hidden      = true;

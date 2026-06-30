@@ -225,6 +225,26 @@
             </p>
           </div>
 
+          <!-- Preview Report button (anonymous only, shown after scan) -->
+          <div id="preview-report-wrap" hidden style="max-width:520px;margin:0 auto 16px;text-align:center;">
+            <button id="preview-report-btn" type="button" style="
+              background:none; border:1.5px solid rgba(255,255,255,0.18);
+              color:rgba(255,255,255,0.7); font-size:13px; font-weight:600;
+              padding:10px 22px; border-radius:8px; cursor:pointer;
+              font-family:inherit; transition:border-color 0.15s,color 0.15s;
+              display:inline-flex; align-items:center; gap:7px;
+            ">
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              Preview Report
+            </button>
+            <p style="color:rgba(255,255,255,0.28);font-size:11px;margin-top:6px;">
+              Read-only · Enter your email below to save a copy
+            </p>
+          </div>
+
           <!-- Email gate (below preview for anonymous users) -->
           <div id="email-gate" style="
             background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.22);

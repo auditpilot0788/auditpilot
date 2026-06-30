@@ -419,6 +419,29 @@ app.get('/api/scan/pdf/:token', (req, res) => {
   fs.createReadStream(entry.pdfPath).pipe(res);
 });
 
+// ── GET /api/scan/pdf/:token/view — inline PDF preview, no download prompt ────
+// Same token as the download route; Content-Disposition: inline so browser
+// renders the PDF rather than saving it.
+app.get('/api/scan/pdf/:token/view', (req, res) => {
+  const entry = pendingDownloads.get(req.params.token);
+  if (!entry || Date.now() > entry.expiresAt) {
+    return res.status(410).type('html').send(
+      '<!doctype html><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#0A1F44;color:rgba(255,255,255,0.55);">' +
+      '<p>Preview expired — please run a new scan.</p></body>'
+    );
+  }
+  if (!fs.existsSync(entry.pdfPath)) {
+    return res.status(404).type('html').send(
+      '<!doctype html><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#0A1F44;color:rgba(255,255,255,0.55);">' +
+      '<p>Report file not found.</p></body>'
+    );
+  }
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `inline; filename="${entry.filename}"`);
+  res.setHeader('Cache-Control', 'no-store');
+  fs.createReadStream(entry.pdfPath).pipe(res);
+});
+
 // ── DEBUG: find Chromium path inside Docker container ─────────────────────────
 app.get('/debug-browser', async (req, res) => {
   const { execSync } = require('child_process');
