@@ -304,7 +304,7 @@
     header.appendChild(closeBtn);
 
     const iframe = document.createElement('iframe');
-    iframe.src   = url;
+    iframe.src   = url + '#toolbar=0';   // hides Chrome/Edge native PDF toolbar (download/print buttons)
     iframe.title = 'Report Preview';
     iframe.style.cssText = 'flex:1; border:none; width:100%;';
 
