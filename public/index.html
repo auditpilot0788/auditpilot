@@ -201,25 +201,41 @@
             </svg>
           </div>
           <h2 class="success-title">Scan complete!</h2>
-          <p class="success-subtitle">Here's a preview of what we found.</p>
 
-          <!-- Score strip — always visible -->
-          <div id="score-strip" class="score-strip" aria-label="Scan result summary"></div>
+          <!-- Score strip (authenticated users — direct download, no preview needed) -->
+          <div id="score-strip" class="score-strip" aria-label="Scan result summary" hidden></div>
 
-          <!-- Top issues teaser — populated by JS -->
-          <div id="issues-teaser"
-            aria-label="Top issues preview"
-            style="
-              text-align:left; max-width:420px; margin:16px auto 24px;
-              background:rgba(255,255,255,0.04);
-              border:1px solid rgba(255,255,255,0.08);
-              border-radius:10px; padding:16px 20px;
-            "></div>
+          <!-- Full preview panel (anonymous users) — populated by JS -->
+          <div id="preview-panel" hidden style="text-align:left;max-width:520px;margin:18px auto 0;">
 
-          <!-- Email gate — shown first -->
-          <div id="email-gate" class="success-actions">
-            <p style="color:rgba(255,255,255,0.7); font-size:14px; font-weight:600; margin-bottom:14px;">
-              One quick step — enter your email to download your PDF report below
+            <!-- Score cards -->
+            <div id="preview-scores" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;"></div>
+
+            <!-- Violations list -->
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;margin-bottom:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;">Issues Found</span>
+                <span id="preview-total" style="font-size:12px;color:rgba(255,255,255,0.35);"></span>
+              </div>
+              <div id="preview-violations"></div>
+            </div>
+
+            <p style="color:rgba(255,255,255,0.3);font-size:11.5px;text-align:center;line-height:1.65;margin-bottom:28px;">
+              Full PDF includes code-level fixes, element screenshots &amp; a publish-ready EAA accessibility statement.
+            </p>
+          </div>
+
+          <!-- Email gate (below preview for anonymous users) -->
+          <div id="email-gate" style="
+            background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.22);
+            border-radius:14px; padding:22px 26px;
+            max-width:520px; margin:0 auto 16px; text-align:left;
+          ">
+            <p style="color:#fff;font-size:15px;font-weight:700;margin-bottom:4px;">
+              Download the complete PDF report
+            </p>
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:16px;">
+              Enter your email — we'll send you the full 8-page report with code-level fixes.
             </p>
             <div id="lead-input-row" style="
               display:flex; border-radius:8px; overflow:hidden;
@@ -242,15 +258,13 @@
                 background:#C9A84C; border:none; color:#0A1F44;
                 font-size:13px; font-weight:700; padding:0 22px; height:50px;
                 cursor:pointer; font-family:inherit; white-space:nowrap;
-              ">Continue →</button>
+              ">Download PDF →</button>
             </div>
             <div id="lead-error" role="alert" aria-live="polite"
               style="color:#fca5a5; font-size:12px; margin-bottom:8px;" hidden></div>
-            <!-- GDPR consent — unchecked by default -->
             <label for="lead-consent" style="
               display:flex; align-items:flex-start; gap:10px; cursor:pointer;
-              color:rgba(255,255,255,0.65); font-size:12px; line-height:1.5;
-              text-align:left; max-width:420px; margin:0 auto;
+              color:rgba(255,255,255,0.5); font-size:12px; line-height:1.5;
             ">
               <input
                 type="checkbox"
@@ -258,17 +272,14 @@
                 name="lead-consent"
                 style="margin-top:2px; accent-color:#C9A84C; flex-shrink:0;"
               >
-              Send me accessibility updates and compliance insights (optional)
+              Send me accessibility insights and compliance updates (optional)
             </label>
           </div>
 
-          <!-- Thanks message — revealed after submit -->
-          <div id="lead-thanks" hidden style="margin:12px 0 8px;">
-            <p style="
-              color:#4ade80; font-size:15px; font-weight:600; margin-bottom:4px;
-            ">Thanks! Your report is ready.</p>
-            <p style="color:rgba(255,255,255,0.65); font-size:12px;">
-              Your report is ready — click below to download it now.
+          <!-- Thanks message — revealed after email submitted -->
+          <div id="lead-thanks" hidden style="max-width:520px;margin:0 auto 8px;text-align:center;">
+            <p style="color:#4ade80; font-size:15px; font-weight:600; margin-bottom:4px;">
+              ✓ Your report is ready.
             </p>
           </div>
 
@@ -284,7 +295,30 @@
             </a>
           </div>
 
-          <button id="reset-btn" class="reset-btn" type="button">Scan Another URL</button>
+          <!-- Soft upsell — shown after download (anonymous only) -->
+          <div id="signup-upsell" hidden style="
+            max-width:520px; margin:14px auto 0;
+            background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,255,255,0.07);
+            border-radius:10px; padding:18px 20px; text-align:center;
+          ">
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.65;margin-bottom:12px;">
+              Want to scan <strong style="color:#C9A84C;">2 more sites</strong> this month?<br>
+              Create a free account — no credit card needed.
+            </p>
+            <a href="/login" style="
+              display:inline-block; background:#C9A84C; color:#0A1F44;
+              font-size:13px; font-weight:700; padding:9px 22px;
+              border-radius:7px; text-decoration:none;
+            ">Create free account →</a>
+            <p style="color:rgba(255,255,255,0.2);font-size:11px;margin-top:8px;">
+              3 scans/month · No credit card · 30-second setup
+            </p>
+          </div>
+
+          <button id="reset-btn" class="reset-btn" type="button" style="margin-top:22px;">
+            Scan Another URL
+          </button>
         </div>
 
       </div><!-- /scan tool -->

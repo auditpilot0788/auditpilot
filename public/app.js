@@ -23,7 +23,11 @@
   const leadError       = document.getElementById('lead-error');
   const leadConsent     = document.getElementById('lead-consent');
   const leadThanks      = document.getElementById('lead-thanks');
-  const issueTeaserEl   = document.getElementById('issues-teaser');
+  const previewPanel    = document.getElementById('preview-panel');
+  const previewScoresEl = document.getElementById('preview-scores');
+  const previewViolEl   = document.getElementById('preview-violations');
+  const previewTotalEl  = document.getElementById('preview-total');
+  const signupUpsell    = document.getElementById('signup-upsell');
   const downloadSection = document.getElementById('download-section');
 
   const progressSteps = [
@@ -40,11 +44,12 @@
     'Generating professional PDF report…'
   ];
 
-  let stepTimer       = null;
-  let currentBlobUrl  = null;
-  let lastScannedUrl  = '';
-  let lastScoreData   = null;
-  let isAuthenticated = false;
+  let stepTimer            = null;
+  let currentBlobUrl       = null;
+  let currentDownloadToken = null;
+  let lastScannedUrl       = '';
+  let lastScoreData        = null;
+  let isAuthenticated      = false;
 
   // ── Validation ──────────────────────────────────────────────────────────────
 
@@ -126,19 +131,22 @@
     }, 500); // small delay so browser has time to initiate the download
   }
 
+  // Authenticated-user success: blob PDF + direct download, no email gate.
   function goSuccess(blob, filename, scoreData) {
     clearInterval(stepTimer);
 
-    // Mark all steps complete
     progressSteps.forEach(s => {
       s.classList.remove('active');
       s.classList.add('done');
       const dot = s.querySelector('.p-dot');
-      dot.className = 'p-dot';
+      dot.className        = 'p-dot';
       dot.style.background = '#4ade80';
     });
 
-    // Build score strip
+    if (previewPanel)  previewPanel.hidden  = true;
+    if (signupUpsell)  signupUpsell.hidden  = true;
+    scoreStrip.hidden = false;
+
     scoreStrip.innerHTML = '';
     if (scoreData) {
       const items = [
@@ -154,7 +162,6 @@
         </div>`).join('');
     }
 
-    // Store blob and score for the lead-submit step
     lastScoreData = scoreData;
     if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
     currentBlobUrl = URL.createObjectURL(blob);
@@ -162,54 +169,14 @@
     downloadLnk.href     = currentBlobUrl;
     downloadLnk.download = filename;
 
+    emailGate.hidden       = true;
+    leadThanks.hidden      = true;
+    downloadSection.hidden = false;
+    downloadLnk.removeEventListener('click', handleDownloadClick);
+    downloadLnk.addEventListener('click', handleDownloadClick, { once: true });
+
     stateLoad.hidden = true;
     stateSucc.hidden = false;
-
-    // ── Bug 1: skip email gate for logged-in users ───────────────────────────
-    if (isAuthenticated) {
-      issueTeaserEl.innerHTML = '';
-      emailGate.hidden        = true;
-      leadThanks.hidden       = true;
-      downloadSection.hidden  = false;
-      downloadLnk.removeEventListener('click', handleDownloadClick);
-      downloadLnk.addEventListener('click', handleDownloadClick, { once: true });
-      return;
-    }
-
-    // ── Anonymous: show teaser + email gate ──────────────────────────────────
-    issueTeaserEl.innerHTML = '';
-    if (scoreData) {
-      const bullets = [];
-      if (scoreData.critical > 0)
-        bullets.push(`<strong style="color:#fca5a5">${scoreData.critical}</strong> critical issue${scoreData.critical !== 1 ? 's' : ''} blocking screen reader access`);
-      if (scoreData.serious > 0)
-        bullets.push(`<strong style="color:#fdba74">${scoreData.serious}</strong> serious WCAG 2.1 AA violation${scoreData.serious !== 1 ? 's' : ''}`);
-      if (scoreData.moderate > 0)
-        bullets.push(`<strong style="color:#fde68a">${scoreData.moderate}</strong> moderate accessibility issue${scoreData.moderate !== 1 ? 's' : ''}`);
-      if (bullets.length === 0 && scoreData.total > 0)
-        bullets.push(`<strong style="color:#fdba74">${scoreData.total}</strong> accessibility issue${scoreData.total !== 1 ? 's' : ''} detected`);
-      if (bullets.length === 0)
-        bullets.push('No critical issues detected — full report includes details');
-      bullets.push('Full report includes code-level fixes &amp; legal statement');
-      issueTeaserEl.innerHTML = bullets.slice(0, 3).map(b =>
-        `<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;">
-          <span style="color:#C9A84C;flex-shrink:0;margin-top:1px;">•</span>
-          <span style="color:rgba(255,255,255,0.65);font-size:13px;line-height:1.5;">${b}</span>
-        </div>`
-      ).join('');
-    }
-
-    emailGate.hidden       = false;
-    leadThanks.hidden      = true;
-    downloadSection.hidden = true;
-    leadEmailInput.value   = '';
-    leadConsent.checked    = false;
-    leadError.hidden       = true;
-    leadError.textContent  = '';
-    leadBtn.disabled       = false;
-    leadBtn.textContent    = 'Continue →';
-
-    leadEmailInput.focus();
   }
 
   function goForm() {
@@ -218,13 +185,13 @@
     stateSucc.hidden = true;
     stateLoad.hidden = true;
     stateForm.hidden = false;
-    // Reset lead-capture state for the next scan
-    issueTeaserEl.innerHTML = '';
+    currentDownloadToken = null;
+    if (previewPanel) previewPanel.hidden = true;
+    if (signupUpsell) signupUpsell.hidden = true;
+    scoreStrip.hidden       = true;
     emailGate.hidden        = false;
     leadThanks.hidden       = true;
-    leadThanks.innerHTML    =
-      '<p style="color:#4ade80;font-size:15px;font-weight:600;margin-bottom:4px;">Thanks! Your report is ready.</p>' +
-      '<p style="color:rgba(255,255,255,0.65);font-size:12px;">Your report is ready — click below to download it now.</p>';
+    leadThanks.innerHTML    = '<p style="color:#4ade80;font-size:15px;font-weight:600;margin-bottom:4px;">✓ Your report is ready.</p>';
     downloadSection.hidden  = true;
     downloadLnk.removeEventListener('click', handleDownloadClick);
     leadEmailInput.value    = '';
@@ -232,10 +199,96 @@
     leadError.hidden        = true;
     leadError.textContent   = '';
     leadBtn.disabled        = false;
-    leadBtn.textContent     = 'Email me the full report →';
+    leadBtn.textContent     = 'Download PDF →';
     urlInput.value = '';
     scanBtn.disabled = false;
     urlInput.focus();
+  }
+
+  // ── Anonymous success flow ───────────────────────────────────────────────────
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderPreview(data) {
+    const aScore = data.score;
+    const aColor = aScore >= 80 ? '#4ade80' : aScore >= 60 ? '#fbbf24' : '#f87171';
+    const eColor = data.eaaRisk === 'Low Risk'    ? '#4ade80'
+                 : data.eaaRisk === 'Medium Risk'  ? '#fbbf24' : '#f87171';
+
+    previewScoresEl.innerHTML = `
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 18px;">
+        <div style="font-size:30px;font-weight:800;color:${aColor};line-height:1;">${aScore}<span style="font-size:13px;color:rgba(255,255,255,0.35);font-weight:400;">/100</span></div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.8px;margin-top:6px;">Accessibility Score</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 18px;">
+        <div style="font-size:30px;font-weight:800;color:${eColor};line-height:1;">${data.eaaScore}<span style="font-size:13px;color:rgba(255,255,255,0.35);font-weight:400;">/100</span></div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.8px;margin-top:6px;">EAA Readiness · ${escHtml(data.eaaRisk)}</div>
+      </div>`;
+
+    previewTotalEl.textContent = `${data.totalIssues} issue${data.totalIssues !== 1 ? 's' : ''}`;
+
+    const SEV = {
+      critical: { bg: 'rgba(239,68,68,0.18)',   color: '#fca5a5', label: 'CRITICAL' },
+      serious:  { bg: 'rgba(249,115,22,0.18)',   color: '#fdba74', label: 'SERIOUS'  },
+      moderate: { bg: 'rgba(234,179,8,0.15)',    color: '#fde68a', label: 'MODERATE' },
+      minor:    { bg: 'rgba(148,163,184,0.12)',  color: '#94a3b8', label: 'MINOR'    }
+    };
+
+    if (!data.violations || data.violations.length === 0) {
+      previewViolEl.innerHTML = '<div style="padding:20px 16px;color:#4ade80;font-size:13px;text-align:center;">✓ No accessibility violations detected.</div>';
+      return;
+    }
+
+    const shown = data.violations.slice(0, 8);
+    const rest  = data.violations.length - shown.length;
+    previewViolEl.innerHTML = shown.map((v, i) => {
+      const s      = SEV[v.impact] || SEV.minor;
+      const border = (i < shown.length - 1 || rest > 0) ? 'border-bottom:1px solid rgba(255,255,255,0.05);' : '';
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;${border}">
+        <span style="background:${s.bg};color:${s.color};font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap;flex-shrink:0;">${s.label}</span>
+        <span style="color:rgba(255,255,255,0.8);font-size:12px;flex:1;line-height:1.45;">${escHtml(v.help)}</span>
+        <span style="color:rgba(255,255,255,0.3);font-size:11px;white-space:nowrap;flex-shrink:0;">${v.count}</span>
+      </div>`;
+    }).join('') + (rest > 0
+      ? `<div style="padding:9px 16px;color:rgba(255,255,255,0.3);font-size:11px;text-align:center;border-top:1px solid rgba(255,255,255,0.05);">+${rest} more issue${rest !== 1 ? 's' : ''} in the full PDF report</div>`
+      : '');
+  }
+
+  function goSuccessAnon(data) {
+    clearInterval(stepTimer);
+
+    progressSteps.forEach(s => {
+      s.classList.remove('active');
+      s.classList.add('done');
+      const dot = s.querySelector('.p-dot');
+      dot.className        = 'p-dot';
+      dot.style.background = '#4ade80';
+    });
+
+    scoreStrip.hidden = true;
+
+    renderPreview(data);
+    previewPanel.hidden = false;
+
+    emailGate.hidden       = false;
+    leadThanks.hidden      = true;
+    downloadSection.hidden = true;
+    if (signupUpsell) signupUpsell.hidden = true;
+    leadEmailInput.value   = '';
+    leadConsent.checked    = false;
+    leadError.hidden       = true;
+    leadError.textContent  = '';
+    leadBtn.disabled       = false;
+    leadBtn.textContent    = 'Download PDF →';
+
+    stateLoad.hidden = true;
+    stateSucc.hidden = false;
+
+    leadEmailInput.focus();
   }
 
   // ── Browser fingerprint ──────────────────────────────────────────────────────
@@ -397,60 +450,70 @@
     scanBtn.disabled = true;
     goLoading();
 
+    const handle403 = (data) => {
+      clearInterval(stepTimer);
+      stateLoad.hidden = true;
+      stateForm.hidden = false;
+      scanBtn.disabled = false;
+      if (data?.error === 'scan_limit_reached') {
+        showUpgradePrompt(data.plan || 'free', data.upgradeUrl || '/pricing');
+      } else {
+        showRegistrationPrompt();
+      }
+    };
+
     try {
       const fingerprint = await getBrowserFingerprint();
       const localId     = getOrCreateLocalId();
 
-      const response = await fetch('/scan', {
-        method:      'POST',
-        headers:     {
-          'Content-Type': 'application/json',
-          'x-browser-fp': fingerprint,
-          'x-local-id':   localId
-        },
-        credentials: 'include',
-        body:        JSON.stringify({ url: normalized })
-      });
+      if (isAuthenticated) {
+        // ── Authenticated: stream PDF directly, no preview needed ──────────────
+        const response = await fetch('/scan', {
+          method:      'POST',
+          headers:     { 'Content-Type': 'application/json', 'x-browser-fp': fingerprint, 'x-local-id': localId },
+          credentials: 'include',
+          body:        JSON.stringify({ url: normalized })
+        });
 
-      if (!response.ok) {
-        let data = null;
-        try { data = await response.json(); } catch { /* body not JSON */ }
-
-        // All 403s go to modals — never to inline error text
-        if (response.status === 403) {
-          clearInterval(stepTimer);
-          stateLoad.hidden = true;
-          stateForm.hidden = false;
-          scanBtn.disabled = false;
-          if (data?.error === 'scan_limit_reached') {
-            showUpgradePrompt(data.plan || 'free', data.upgradeUrl || '/pricing');
-          } else {
-            // anonymous_limit_reached or any other 403
-            showRegistrationPrompt();
-          }
-          return;
+        if (!response.ok) {
+          let data = null;
+          try { data = await response.json(); } catch {}
+          if (response.status === 403) { handle403(data); return; }
+          throw new Error(data?.error || 'The scan failed. Please try again.');
         }
 
-        throw new Error(data?.error || 'The scan failed. Please try again.');
-      }
+        let scoreData = null;
+        const scoreHeader = response.headers.get('X-Audit-Score');
+        if (scoreHeader) { try { scoreData = JSON.parse(scoreHeader); } catch {} }
 
-      // Parse score metadata from the response header
-      let scoreData = null;
-      const scoreHeader = response.headers.get('X-Audit-Score');
-      if (scoreHeader) {
-        try { scoreData = JSON.parse(scoreHeader); } catch { /* ignore */ }
-      }
+        let filename = 'auditpilot-report.pdf';
+        const cd = response.headers.get('Content-Disposition');
+        if (cd) { const m = cd.match(/filename="([^"]+)"/); if (m) filename = m[1]; }
 
-      // Determine the download filename from Content-Disposition
-      let filename = 'auditpilot-report.pdf';
-      const cd = response.headers.get('Content-Disposition');
-      if (cd) {
-        const m = cd.match(/filename="([^"]+)"/);
-        if (m) filename = m[1];
-      }
+        const blob = await response.blob();
+        goSuccess(blob, filename, scoreData);
 
-      const blob = await response.blob();
-      goSuccess(blob, filename, scoreData);
+      } else {
+        // ── Anonymous: JSON preview + token-based PDF download ─────────────────
+        const response = await fetch('/api/scan/preview', {
+          method:      'POST',
+          headers:     { 'Content-Type': 'application/json', 'x-browser-fp': fingerprint, 'x-local-id': localId },
+          credentials: 'include',
+          body:        JSON.stringify({ url: normalized })
+        });
+
+        if (!response.ok) {
+          let data = null;
+          try { data = await response.json(); } catch {}
+          if (response.status === 403) { handle403(data); return; }
+          throw new Error(data?.error || 'The scan failed. Please try again.');
+        }
+
+        const previewData    = await response.json();
+        currentDownloadToken = previewData.token;
+        lastScoreData        = previewData.score;
+        goSuccessAnon(previewData);
+      }
 
     } catch (err) {
       clearInterval(stepTimer);
@@ -494,14 +557,20 @@
       });
     } catch { /* non-fatal — never block the download */ }
 
-    // Show thanks + reveal download button (no auto-click — user decides)
     emailGate.hidden       = true;
     leadThanks.hidden      = false;
     downloadSection.hidden = false;
 
-    // Bug 3: one-time listener so blob is revoked after first download click
-    downloadLnk.removeEventListener('click', handleDownloadClick);
-    downloadLnk.addEventListener('click', handleDownloadClick, { once: true });
+    if (currentDownloadToken) {
+      // Anonymous path: token-based URL, no blob management needed
+      downloadLnk.href     = '/api/scan/pdf/' + currentDownloadToken;
+      downloadLnk.download = 'auditpilot-report.pdf';
+      if (signupUpsell) signupUpsell.hidden = false;
+    } else {
+      // Authenticated path: blob URL (blob set in goSuccess)
+      downloadLnk.removeEventListener('click', handleDownloadClick);
+      downloadLnk.addEventListener('click', handleDownloadClick, { once: true });
+    }
   }
 
   // ── Event listeners ─────────────────────────────────────────────────────────

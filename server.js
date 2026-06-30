@@ -10,6 +10,7 @@ const cors         = require('cors');
 const cookieParser = require('cookie-parser');
 const path         = require('path');
 const fs           = require('fs');
+const crypto       = require('crypto');
 
 const { scanWebsite }  = require('./scanner');
 const { generateReport } = require('./report');
@@ -56,6 +57,112 @@ app.get('/terms',     (req, res) => res.sendFile(path.join(__dirname, 'public', 
 ['reports', 'screenshots'].forEach(dir => {
   const fullPath = path.join(__dirname, dir);
   if (!fs.existsSync(fullPath)) fs.mkdirSync(fullPath, { recursive: true });
+});
+
+// ── Preview download tokens (in-memory, 30-min TTL) ──────────────────────────
+const pendingDownloads = new Map();
+function cleanupExpiredTokens() {
+  const now = Date.now();
+  for (const [t, e] of pendingDownloads) {
+    if (now > e.expiresAt) pendingDownloads.delete(t);
+  }
+}
+
+// ── POST /api/scan/preview ────────────────────────────────────────────────────
+// Homepage anonymous flow: runs full scan, returns JSON preview + stores PDF
+// with a short-lived token. Token-based download avoids sending PDF as blob.
+app.post('/api/scan/preview', optionalAuth, async (req, res) => {
+  const { url } = req.body;
+
+  if (!url || typeof url !== 'string' || !url.trim()) {
+    return res.status(400).json({ error: 'A URL is required.' });
+  }
+
+  let normalizedUrl = url.trim();
+  if (!/^https?:\/\//i.test(normalizedUrl)) normalizedUrl = 'https://' + normalizedUrl;
+  try { new URL(normalizedUrl); } catch {
+    return res.status(400).json({ error: 'Invalid URL format.' });
+  }
+
+  const ipAddress   = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
+  const fingerprint = req.headers['x-browser-fp'] || 'unknown';
+  let   anonId      = null;
+
+  if (req.user) {
+    try {
+      const { allowed, used, limit, plan } = await canUserScan(req.user.sub);
+      if (!allowed) {
+        return res.status(403).json({ error: 'scan_limit_reached', used, limit, plan, upgradeUrl: '/pricing' });
+      }
+    } catch (dbErr) {
+      console.error('[preview] DB limit check — allowing scan:', dbErr.message);
+    }
+  } else {
+    try {
+      anonId = getAnonId(req, res);
+      const anonCheck = await checkAnonLimit(anonId, ipAddress, fingerprint);
+      if (!anonCheck.allowed) {
+        return res.status(403).json({
+          error:       'anonymous_limit_reached',
+          message:     'You have used your free scan.',
+          scansUsed:   anonCheck.scansUsed,
+          limit:       anonCheck.limit,
+          action:      'register',
+          registerUrl: '/login',
+          benefit:     'Create a free account to get 3 scans per month'
+        });
+      }
+    } catch (dbErr) {
+      console.error('[preview] Anon limit check — allowing scan:', dbErr.message);
+    }
+  }
+
+  try {
+    const scanResults = await scanWebsite(normalizedUrl);
+    const pdfPath     = await generateReport(normalizedUrl, scanResults, null);
+    const filename    = path.basename(pdfPath);
+
+    if (req.user) {
+      try { await recordScan(req.user.sub, normalizedUrl, filename); } catch (e) { console.error('[preview] recordScan:', e.message); }
+    } else {
+      try { await recordAnonScan(anonId, ipAddress, fingerprint, normalizedUrl); } catch (e) { console.error('[preview] recordAnonScan:', e.message); }
+    }
+
+    cleanupExpiredTokens();
+    const token = crypto.randomBytes(16).toString('hex');
+    pendingDownloads.set(token, { pdfPath, filename, expiresAt: Date.now() + 30 * 60 * 1000 });
+
+    // Slim violation list — only what the frontend preview needs
+    const violations = [];
+    for (const sev of ['critical', 'serious', 'moderate', 'minor']) {
+      for (const v of (scanResults.groupedViolations[sev] || [])) {
+        violations.push({ id: v.id, impact: v.impact, help: v.help, count: v.nodes.length });
+      }
+    }
+
+    return res.json({
+      token,
+      filename,
+      score:        scanResults.score,
+      eaaScore:     scanResults.eaaScore,
+      eaaRisk:      scanResults.eaaRisk,
+      counts:       scanResults.counts,
+      totalIssues:  scanResults.totalIssues,
+      pagesScanned: scanResults.pagesScanned,
+      duration:     scanResults.duration,
+      violations
+    });
+
+  } catch (error) {
+    console.error('[preview] Scan error:', error.message);
+    if (/timeout/i.test(error.message))
+      return res.status(408).json({ error: 'The website took too long to load. Please try again.' });
+    if (/ERR_NAME_NOT_RESOLVED|ERR_CONNECTION_REFUSED/i.test(error.message))
+      return res.status(502).json({ error: 'Could not reach the website. Please check the URL.' });
+    if (/ERR_CERT|SSL|certificate/i.test(error.message))
+      return res.status(502).json({ error: 'The website has an SSL issue that prevented scanning.' });
+    return res.status(500).json({ error: 'Scan failed. Please try again.' });
+  }
 });
 
 // ── POST /scan ────────────────────────────────────────────────────────────────
@@ -296,6 +403,20 @@ app.get('/reports/:filename', requireAuth, (req, res) => {
     return res.status(404).json({ error: 'Report not found or has been removed.' });
   }
   res.download(filePath);
+});
+
+// ── GET /api/scan/pdf/:token — serve preview PDF by short-lived token ─────────
+app.get('/api/scan/pdf/:token', (req, res) => {
+  const entry = pendingDownloads.get(req.params.token);
+  if (!entry || Date.now() > entry.expiresAt) {
+    return res.status(410).json({ error: 'Download link has expired. Please scan again.' });
+  }
+  if (!fs.existsSync(entry.pdfPath)) {
+    return res.status(404).json({ error: 'Report file not found.' });
+  }
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${entry.filename}"`);
+  fs.createReadStream(entry.pdfPath).pipe(res);
 });
 
 // ── DEBUG: find Chromium path inside Docker container ─────────────────────────
