@@ -419,6 +419,77 @@ app.get('/api/scan/pdf/:token', (req, res) => {
   fs.createReadStream(entry.pdfPath).pipe(res);
 });
 
+// ── Admin: anonymous scan reset (dev/testing only) ────────────────────────────
+// Protected by X-Admin-Secret header matched against ADMIN_SECRET env var.
+// Never expose or call these routes in automated code — manual dev use only.
+function requireAdminSecret(req, res, next) {
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret) return res.status(503).json({ error: 'ADMIN_SECRET is not configured on this server.' });
+  if (req.headers['x-admin-secret'] !== secret) return res.status(401).json({ error: 'Invalid admin secret.' });
+  next();
+}
+
+// GET /api/admin/anon-record
+// Shows the current requester's anonymous_scans rows based on their cookie + fingerprint.
+// Pass ?anon_id=, ?fingerprint=, or ?ip= to look up a specific value instead.
+app.get('/api/admin/anon-record', requireAdminSecret, async (req, res) => {
+  const anonId = req.query.anon_id      || req.cookies?.ap_anon_id || null;
+  const ip     = req.query.ip           || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
+  const fp     = req.query.fingerprint  || req.headers['x-browser-fp'] || null;
+
+  try {
+    const { rows } = await query(
+      `SELECT id, anon_id, ip_address, browser_fingerprint, scanned_url, scanned_at, email
+         FROM anonymous_scans
+        WHERE anon_id = $1
+           OR ip_address = $2
+           OR (browser_fingerprint = $3 AND $3 IS NOT NULL AND $3 != 'unknown')
+        ORDER BY scanned_at DESC`,
+      [anonId, ip, fp]
+    );
+    return res.json({ matched: { anonId, ip, fingerprint: fp }, rows });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/admin/anon-record
+// Deletes rows matching the current requester's cookie + fingerprint (mirrors
+// checkAnonLimit logic exactly). Pass ?anon_id=, ?fingerprint=, or ?ip= to
+// target a different value. Pass ?all=1 to wipe the entire table.
+app.delete('/api/admin/anon-record', requireAdminSecret, async (req, res) => {
+  if (req.query.all === '1') {
+    try {
+      const result = await query('DELETE FROM anonymous_scans RETURNING id, anon_id, scanned_url');
+      return res.json({ deleted: result.rowCount, rows: result.rows });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  const anonId = req.query.anon_id     || req.cookies?.ap_anon_id || null;
+  const fp     = req.query.fingerprint || req.headers['x-browser-fp'] || null;
+
+  if (!anonId && !fp) {
+    return res.status(400).json({
+      error: 'Nothing to delete — no anon_id cookie found and no x-browser-fp header. Pass ?anon_id= or ?fingerprint= explicitly.'
+    });
+  }
+
+  try {
+    const result = await query(
+      `DELETE FROM anonymous_scans
+        WHERE anon_id = $1
+           OR (browser_fingerprint = $2 AND $2 IS NOT NULL AND $2 != 'unknown')
+       RETURNING id, anon_id, scanned_url, scanned_at`,
+      [anonId, fp]
+    );
+    return res.json({ deleted: result.rowCount, rows: result.rows });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/scan/pdf/:token/view — inline PDF preview, no download prompt ────
 // Same token as the download route; Content-Disposition: inline so browser
 // renders the PDF rather than saving it.
