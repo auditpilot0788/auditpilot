@@ -308,9 +308,23 @@
     headerLeft.appendChild(line1);
 
     if (showEmailGate) {
-      const line2 = document.createElement('span');
-      line2.style.cssText = 'font-size:11px;color:rgba(201,168,76,0.85);';
-      line2.innerHTML = `This report shows AuditPilot branding — <a href="/agencies" style="color:#C9A84C;font-weight:600;text-decoration:underline;text-underline-offset:2px;">upgrade to Agency</a> to use your own company name and logo instead.`;
+      if (!document.getElementById('agency-upsell-anim')) {
+        const s = document.createElement('style');
+        s.id = 'agency-upsell-anim';
+        s.textContent = '@keyframes agencyGlow{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0);border-color:rgba(201,168,76,0.28)}50%{box-shadow:0 0 14px 3px rgba(201,168,76,0.22);border-color:rgba(201,168,76,0.65)}}';
+        document.head.appendChild(s);
+      }
+      const line2 = document.createElement('div');
+      line2.style.cssText = 'display:flex;align-items:center;gap:12px;margin-top:4px;padding:5px 10px 5px 12px;background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.28);border-left:3px solid #C9A84C;border-radius:6px;animation:agencyGlow 2.5s ease-in-out infinite;';
+      const upsellText = document.createElement('span');
+      upsellText.style.cssText = 'font-size:12px;color:rgba(255,255,255,0.82);font-weight:500;flex:1;';
+      upsellText.textContent = 'This report shows AuditPilot branding — use your own company name and logo instead.';
+      const upsellBtn = document.createElement('a');
+      upsellBtn.href = '/agencies';
+      upsellBtn.style.cssText = 'display:inline-block;background:#C9A84C;color:#0A1F44;font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;text-decoration:none;white-space:nowrap;flex-shrink:0;';
+      upsellBtn.textContent = 'Upgrade to Agency →';
+      line2.appendChild(upsellText);
+      line2.appendChild(upsellBtn);
       headerLeft.appendChild(line2);
     }
 

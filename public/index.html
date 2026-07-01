@@ -11,10 +11,23 @@
   <style>
     /* ── Override base body/hero background to match new navy palette ── */
     body { background: #0A1F44; }
-    .features { background: #0D1E3A; }
+    .features {
+      background: linear-gradient(180deg, #0C1E3C 0%, #091730 100%);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
     .features-title { color: #fff; }
     .features-sub { color: rgba(255,255,255,0.65); }
-    .f-card { background: #0D2352; border-color: rgba(255,255,255,0.08); }
+    .f-card {
+      background: rgba(255,255,255,0.025);
+      border-color: rgba(255,255,255,0.1);
+    }
+    .f-card:hover {
+      border-color: rgba(201,168,76,0.45) !important;
+      box-shadow: 0 0 20px rgba(201,168,76,0.14), 0 8px 28px rgba(0,0,0,0.35) !important;
+      transform: translateY(-2px);
+    }
+    .f-icon { width: 52px; height: 52px; border-radius: 12px; }
     .f-title { color: #fff; }
     .f-text  { color: rgba(255,255,255,0.65); }
     .footer  { background: #060F22; }
