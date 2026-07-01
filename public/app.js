@@ -177,6 +177,12 @@
     downloadLnk.removeEventListener('click', handleDownloadClick);
     downloadLnk.addEventListener('click', handleDownloadClick, { once: true });
 
+    // Show "Preview Report" button for authenticated users (no email gate in modal)
+    if (previewReportWrap) {
+      previewReportWrap.hidden = false;
+      previewReportBtn.onclick = () => openPdfPreview(currentBlobUrl, false);
+    }
+
     stateLoad.hidden = true;
     stateSucc.hidden = false;
   }
@@ -261,7 +267,9 @@
       : '');
   }
 
-  function openPdfPreview(url) {
+  // showEmailGate = true  → anonymous user: show in-modal email input + download
+  // showEmailGate = false → logged-in user:  just the preview + close button
+  function openPdfPreview(url, showEmailGate) {
     if (document.getElementById('pdf-preview-modal')) return;
 
     const modal = document.createElement('div');
@@ -282,22 +290,29 @@
       box-shadow:0 24px 80px rgba(0,0,0,0.6);
     `;
 
+    // ── Header ────────────────────────────────────────────────────────────────
     const header = document.createElement('div');
     header.style.cssText = `
       display:flex; align-items:center; justify-content:space-between;
       padding:10px 16px; background:#0A1F44; flex-shrink:0;
     `;
-    header.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:3px;">
-        <span style="color:rgba(255,255,255,0.6);font-size:12px;">
-          Preview only — enter your email below to download this report
-        </span>
-        <span style="font-size:11px;color:rgba(201,168,76,0.85);">
-          This report shows AuditPilot branding —
-          <a href="/agencies" style="color:#C9A84C;font-weight:600;text-decoration:underline;text-underline-offset:2px;">upgrade to Agency</a>
-          to use your own company name and logo instead.
-        </span>
-      </div>`;
+
+    const headerLeft = document.createElement('div');
+    headerLeft.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+
+    const line1 = document.createElement('span');
+    line1.style.cssText = 'color:rgba(255,255,255,0.6);font-size:12px;';
+    line1.textContent = showEmailGate
+      ? 'Preview only · Enter your email at the bottom to download'
+      : 'Report preview · Close when done';
+    headerLeft.appendChild(line1);
+
+    if (showEmailGate) {
+      const line2 = document.createElement('span');
+      line2.style.cssText = 'font-size:11px;color:rgba(201,168,76,0.85);';
+      line2.innerHTML = `This report shows AuditPilot branding — <a href="/agencies" style="color:#C9A84C;font-weight:600;text-decoration:underline;text-underline-offset:2px;">upgrade to Agency</a> to use your own company name and logo instead.`;
+      headerLeft.appendChild(line2);
+    }
 
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
@@ -305,18 +320,125 @@
     closeBtn.style.cssText = `
       background:none; border:1px solid rgba(255,255,255,0.22);
       color:rgba(255,255,255,0.75); font-size:12px; font-weight:600;
-      padding:5px 12px; border-radius:6px; cursor:pointer; font-family:inherit;
+      padding:5px 12px; border-radius:6px; cursor:pointer;
+      font-family:inherit; flex-shrink:0; margin-left:16px;
     `;
     closeBtn.addEventListener('click', closeModal);
+
+    header.appendChild(headerLeft);
     header.appendChild(closeBtn);
 
+    // ── PDF iframe ─────────────────────────────────────────────────────────────
     const iframe = document.createElement('iframe');
-    iframe.src   = url + '#toolbar=0';   // hides Chrome/Edge native PDF toolbar (download/print buttons)
+    iframe.src   = url + '#toolbar=0';
     iframe.title = 'Report Preview';
     iframe.style.cssText = 'flex:1; border:none; width:100%;';
 
     inner.appendChild(header);
     inner.appendChild(iframe);
+
+    // ── Footer email gate (anonymous only) ────────────────────────────────────
+    if (showEmailGate) {
+      const footer = document.createElement('div');
+      footer.style.cssText = `
+        flex-shrink:0; background:#0A1F44;
+        padding:12px 16px; border-top:1px solid rgba(255,255,255,0.08);
+      `;
+
+      const gateRow = document.createElement('div');
+      gateRow.style.cssText = 'display:flex;gap:8px;align-items:center;';
+
+      const modalEmailEl = document.createElement('input');
+      modalEmailEl.type         = 'email';
+      modalEmailEl.placeholder  = 'your@email.com';
+      modalEmailEl.autocomplete = 'email';
+      modalEmailEl.style.cssText = `
+        flex:1; background:rgba(255,255,255,0.08);
+        border:1.5px solid rgba(255,255,255,0.2); border-radius:7px;
+        color:#fff; font-size:13px; padding:0 12px; height:40px;
+        outline:none; font-family:inherit;
+      `;
+
+      const modalLeadBtn = document.createElement('button');
+      modalLeadBtn.type        = 'button';
+      modalLeadBtn.textContent = 'Download PDF →';
+      modalLeadBtn.style.cssText = `
+        background:#C9A84C; border:none; color:#0A1F44;
+        font-size:13px; font-weight:700; padding:0 18px; height:40px;
+        border-radius:7px; cursor:pointer; font-family:inherit; white-space:nowrap;
+      `;
+
+      gateRow.appendChild(modalEmailEl);
+      gateRow.appendChild(modalLeadBtn);
+
+      const gateError = document.createElement('div');
+      gateError.style.cssText = 'color:#fca5a5;font-size:11px;margin-top:5px;';
+      gateError.hidden = true;
+
+      const gateDone = document.createElement('div');
+      gateDone.style.cssText = 'display:none;align-items:center;gap:12px;';
+
+      const doneText = document.createElement('span');
+      doneText.style.cssText = 'color:#4ade80;font-size:13px;';
+      doneText.textContent = '✓ Your report is ready.';
+
+      const modalDlLink = document.createElement('a');
+      modalDlLink.href          = '#';
+      modalDlLink.download      = 'auditpilot-report.pdf';
+      modalDlLink.textContent   = '↓ Download PDF';
+      modalDlLink.style.cssText = `
+        background:#C9A84C; color:#0A1F44; font-size:12px; font-weight:700;
+        padding:6px 14px; border-radius:6px; text-decoration:none;
+      `;
+
+      gateDone.appendChild(doneText);
+      gateDone.appendChild(modalDlLink);
+      footer.appendChild(gateRow);
+      footer.appendChild(gateError);
+      footer.appendChild(gateDone);
+      inner.appendChild(footer);
+
+      async function submitModalLead() {
+        const email = modalEmailEl.value.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          gateError.textContent = 'Please enter a valid email address.';
+          gateError.hidden = false;
+          modalEmailEl.focus();
+          return;
+        }
+        gateError.hidden         = true;
+        modalLeadBtn.disabled    = true;
+        modalLeadBtn.textContent = 'Unlocking…';
+
+        try {
+          await fetch('/api/lead', {
+            method:      'POST',
+            headers:     { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              email, url: lastScannedUrl, score: lastScoreData,
+              marketingConsent: false, source: 'free_scanner'
+            })
+          });
+        } catch {}
+
+        // Unlock page-level download too (so closing the modal still works)
+        modalDlLink.href       = '/api/scan/pdf/' + currentDownloadToken;
+        emailGate.hidden       = true;
+        leadThanks.hidden      = false;
+        downloadSection.hidden = false;
+        downloadLnk.href       = '/api/scan/pdf/' + currentDownloadToken;
+        downloadLnk.download   = 'auditpilot-report.pdf';
+        if (signupUpsell) signupUpsell.hidden = false;
+
+        gateRow.hidden           = true;
+        gateDone.style.display   = 'flex';
+      }
+
+      modalLeadBtn.addEventListener('click', submitModalLead);
+      modalEmailEl.addEventListener('keydown', e => { if (e.key === 'Enter') submitModalLead(); });
+    }
+
     modal.appendChild(inner);
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
     document.body.appendChild(modal);
@@ -340,7 +462,7 @@
 
     if (previewReportWrap) {
       previewReportWrap.hidden = false;
-      previewReportBtn.onclick = () => openPdfPreview('/api/scan/pdf/' + data.token + '/view');
+      previewReportBtn.onclick = () => openPdfPreview('/api/scan/pdf/' + data.token + '/view', true);
     }
 
     emailGate.hidden       = false;
