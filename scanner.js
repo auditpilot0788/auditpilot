@@ -156,7 +156,7 @@ async function scanWebsite(url) {
 
     // ── Axe-core scan ──────────────────────────────────────────────────────────
     const axeResults = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'])
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
       .analyze();
 
     const screenshotsDir = path.join(__dirname, 'screenshots');

@@ -447,9 +447,9 @@ function complianceDashboardHtml(score, eaaScore, eaaRisk) {
     <div class="comp-grid">
       <div class="comp-card">
         <div class="comp-icon">&#10003;</div>
-        <div class="comp-title">WCAG 2.1 AA Alignment</div>
+        <div class="comp-title">WCAG 2.2 AA Alignment</div>
         <span class="comp-badge" style="background:${wcagColor}">${wcagLabel}</span>
-        <p class="comp-detail">Score ${score}/100 against WCAG 2.1 Level AA criteria — the globally recognised standard for web accessibility.</p>
+        <p class="comp-detail">Score ${score}/100 against WCAG 2.2 Level AA criteria — the globally recognised standard for web accessibility.</p>
       </div>
       <div class="comp-card">
         <div class="comp-icon">&#9878;</div>
@@ -877,7 +877,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
   ${prioritySection}` : ''}
 
   <div class="summary-note">
-    This report was generated using axe-core against WCAG 2.0 A/AA and WCAG 2.1 A/AA standards.
+    This report was generated using axe-core against WCAG 2.1 A/AA and WCAG 2.2 AA standards.
     ${totalIssues > 0
       ? `The scan identified <strong>${totalIssues} issue${totalIssues !== 1 ? 's' : ''}</strong>. EAA readiness score: <strong style="color:${eaaColor}">${eaaScore}/100 — ${eaaRisk}</strong>.`
       : `<strong style="color:#16a34a">No accessibility violations detected.</strong> EAA readiness score: <strong>${eaaScore}/100 — ${eaaRisk}</strong>.`}
@@ -895,7 +895,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
   </div>
 
   <h2 class="sec-title">Compliance Overview</h2>
-  <p class="sec-sub">WCAG 2.1 AA alignment, European Accessibility Act readiness, and estimated legal risk level.</p>
+  <p class="sec-sub">WCAG 2.2 AA alignment, European Accessibility Act readiness, and estimated legal risk level.</p>
 
   ${compSection}
 </div>
@@ -941,7 +941,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
       <div class="impact-icon">&#9878;</div>
       <div class="impact-title">Legal &amp; Compliance Risk</div>
       <div class="impact-text">
-        The European Accessibility Act (EAA) and WCAG 2.1 AA require websites to be accessible.
+        The European Accessibility Act (EAA) and WCAG 2.2 AA require websites to be accessible.
         This site's EAA readiness score of <strong>${eaaScore}/100</strong> indicates
         <strong style="color:${eaaColor}">${eaaRisk}</strong> exposure.
         ${counts.critical > 0 ? 'Critical violations require immediate remediation to reduce regulatory liability.' : 'No critical violations were detected.'}
@@ -1009,7 +1009,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
     <div class="stmt-section">Conformance Status</div>
     <p>The Web Content Accessibility Guidelines (WCAG) define requirements for designers and developers to improve
     accessibility for people with disabilities. Our website <span class="ph">[WEBSITE URL]</span> is currently
-    working towards conformance with WCAG 2.1 Level AA.</p>
+    working towards conformance with WCAG 2.2 Level AA.</p>
 
     <div class="stmt-section">Feedback</div>
     <p>We welcome feedback on the accessibility of <span class="ph">[WEBSITE URL]</span>:</p>
