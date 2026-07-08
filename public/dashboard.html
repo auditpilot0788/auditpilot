@@ -385,10 +385,88 @@
         </p>
       </div>
 
+      <!-- Preview button -->
+      <div style="margin-top:20px;">
+        <button onclick="openWidgetPreview()" style="height:38px;padding:0 16px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.35);border-radius:8px;color:#C9A84C;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+          ▶ Preview Widget
+        </button>
+      </div>
+
+      <!-- Collapsible how-to guide -->
+      <div style="margin-top:20px;border-top:1px solid rgba(255,255,255,0.07);padding-top:16px;">
+        <button onclick="toggleHowTo()" style="background:none;border:none;color:rgba(255,255,255,0.65);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:0;display:flex;align-items:center;gap:6px;width:100%;text-align:left;">
+          <span id="howto-arrow">▼</span> How to add this to your website
+        </button>
+        <div id="howto-content" style="display:none;margin-top:16px;">
+          <!-- Step 1 -->
+          <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="min-width:28px;height:28px;background:#C9A84C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#0A1F44;flex-shrink:0;margin-top:1px;">1</div>
+            <div>
+              <p style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">Copy the snippet</p>
+              <p style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">Click "Copy snippet" above to copy the embed code.</p>
+            </div>
+          </div>
+          <!-- Step 2 -->
+          <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="min-width:28px;height:28px;background:#C9A84C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#0A1F44;flex-shrink:0;margin-top:1px;">2</div>
+            <div>
+              <p style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">Open your website's HTML or CMS</p>
+              <p style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">Go to your website editor, CMS (WordPress, Wix, Squarespace, Webflow), or ask your developer to open the relevant page's HTML.</p>
+            </div>
+          </div>
+          <!-- Step 3 -->
+          <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="min-width:28px;height:28px;background:#C9A84C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#0A1F44;flex-shrink:0;margin-top:1px;">3</div>
+            <div>
+              <p style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">Paste where you want the scanner</p>
+              <p style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">Paste the snippet into your page's HTML where you want the scanner to appear — usually inside the <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-size:11px;">&lt;body&gt;</code> tag. In WordPress, use a Custom HTML block.</p>
+            </div>
+          </div>
+          <!-- Step 4 -->
+          <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+            <div style="min-width:28px;height:28px;background:#C9A84C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#0A1F44;flex-shrink:0;margin-top:1px;">4</div>
+            <div>
+              <p style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">Customize <span style="font-weight:400;color:rgba(255,255,255,0.4);">(optional)</span></p>
+              <p style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">
+                Change <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-size:11px;">data-primary-color</code> to your brand's hex color (e.g. <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-size:11px;">#e63946</code>).<br>
+                Change <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-size:11px;">data-label</code> to your preferred button text.<br>
+                Change <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-size:11px;">data-cta-url</code> to your website's contact or services page URL.
+              </p>
+            </div>
+          </div>
+          <!-- Step 5 -->
+          <div style="display:flex;gap:14px;padding:14px 0;">
+            <div style="min-width:28px;height:28px;background:#C9A84C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#0A1F44;flex-shrink:0;margin-top:1px;">5</div>
+            <div>
+              <p style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">Save and test</p>
+              <p style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.6;">Save your page, open it in a browser, enter any URL in the scanner, and click Scan to confirm it's working.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="widget-status" style="display:none;font-size:13px;margin-top:12px;"></div>
     </div>
 
   </div><!-- /page -->
+
+  <!-- Widget preview modal -->
+  <div id="widget-preview-modal" onclick="if(event.target===this)closeWidgetPreview()"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:1000;align-items:center;justify-content:center;padding:16px;">
+    <div style="position:relative;background:#0A1F44;border-radius:12px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:28px;border:1px solid rgba(255,255,255,0.1);">
+      <button onclick="closeWidgetPreview()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:rgba(255,255,255,0.45);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;">✕</button>
+      <h3 style="font-size:17px;font-weight:700;color:#fff;margin-bottom:4px;">Widget Preview</h3>
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:20px;">This is how the scanner will look on your website.</p>
+      <div id="widget-preview-container" style="background:#f5f5f5;border-radius:8px;padding:16px;min-height:80px;"></div>
+      <p style="margin-top:12px;font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;">
+        Your visitors will see this scanner on your website. The results show issue count and EAA risk — no scores.
+      </p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap;">
+        <button onclick="closeWidgetPreview()" style="height:38px;padding:0 18px;background:none;border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:rgba(255,255,255,0.6);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Close</button>
+        <button onclick="copySnippetAndClose()" style="height:38px;padding:0 18px;background:#C9A84C;border:none;border-radius:8px;color:#0A1F44;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Got it — Copy Snippet</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // ── State ─────────────────────────────────────────────────────────────────
@@ -623,6 +701,55 @@
       el.style.display = 'block';
       el.style.color   = type === 'success' ? '#4ade80' : '#f87171';
       setTimeout(() => { el.style.display = 'none'; }, 5000);
+    }
+
+    // ── Widget preview modal ──────────────────────────────────────────────────
+
+    function openWidgetPreview() {
+      if (!_rawWidgetKey) { showWidgetStatus('Widget key not loaded yet. Please wait.', 'error'); return; }
+
+      const container = document.getElementById('widget-preview-container');
+      container.innerHTML = '';
+
+      // Create a fresh host element so Shadow DOM initializes cleanly each time
+      const host = document.createElement('div');
+      host.id = 'auditpilot-widget';
+      host.dataset.widgetKey    = _rawWidgetKey;
+      host.dataset.primaryColor = '#C9A84C';
+      host.dataset.label        = 'Free Accessibility Check';
+      host.dataset.ctaUrl       = 'https://getauditpilot.de';
+      container.appendChild(host);
+
+      if (window.__apWidgetLoaded) {
+        window.__apWidgetInit(); // re-run init against the fresh element
+      } else {
+        const script = document.createElement('script');
+        script.src = '/embed/widget.js'; // auto-inits on load (readyState already 'complete')
+        document.head.appendChild(script);
+      }
+
+      document.getElementById('widget-preview-modal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeWidgetPreview() {
+      document.getElementById('widget-preview-modal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function copySnippetAndClose() {
+      copyEmbedSnippet();
+      closeWidgetPreview();
+    }
+
+    // ── How-to guide toggle ───────────────────────────────────────────────────
+
+    function toggleHowTo() {
+      const content = document.getElementById('howto-content');
+      const arrow   = document.getElementById('howto-arrow');
+      const visible = content.style.display !== 'none';
+      content.style.display = visible ? 'none' : 'block';
+      arrow.textContent     = visible ? '▼' : '▲';
     }
 
     document.getElementById('save-branding-btn').addEventListener('click', saveBranding);

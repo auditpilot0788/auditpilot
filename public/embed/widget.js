@@ -145,6 +145,7 @@
   function init() {
     var host = document.getElementById('auditpilot-widget');
     if (!host) return;
+    if (host.shadowRoot) return; // already initialized for this element — skip
 
     var widgetKey   = (host.dataset.widgetKey   || '').trim();
     var primaryColor = (host.dataset.primaryColor || '#C9A84C').trim();
@@ -247,6 +248,10 @@
       if (e.key === 'Enter') runScan();
     });
   }
+
+  // Expose for dashboard preview re-initialization
+  window.__apWidgetInit   = init;
+  window.__apWidgetLoaded = true;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
