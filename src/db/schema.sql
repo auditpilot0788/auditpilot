@@ -78,3 +78,18 @@ ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS agency_name      VARCHAR(100)
 ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS agency_tagline   VARCHAR(150);
 ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS agency_logo_b64  TEXT;
 ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS agency_logo_mime VARCHAR(20);
+
+-- ── Embed Widget (Agency plan) ────────────────────────────────────────────────
+
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS widget_key VARCHAR(80) UNIQUE;
+
+CREATE TABLE IF NOT EXISTS widget_scan_usage (
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  widget_key  VARCHAR(80) NOT NULL,
+  scanned_url TEXT        NOT NULL,
+  ip_address  INET,
+  scanned_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_widget_usage_key_day
+  ON widget_scan_usage (widget_key, scanned_at);

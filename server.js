@@ -18,6 +18,7 @@ const authRouter       = require('./src/routes/auth');
 const billingRouter    = require('./src/routes/billing');
 const leadRouter       = require('./src/routes/lead');
 const brandingRouter   = require('./src/routes/branding');
+const widgetRouter     = require('./src/routes/widget');
 const { requireAuth, optionalAuth } = require('./src/middleware/auth');
 const { canUserScan, recordScan }                = require('./src/lib/scanLimits');
 const { getAnonId }                              = require('./src/middleware/anonymousTracker');
@@ -43,6 +44,7 @@ app.use('/api/auth',    authRouter);
 app.use('/api/billing', billingRouter);
 app.use('/api',         leadRouter);
 app.use('/api',         brandingRouter);
+app.use('/api/widget',  widgetRouter);
 
 // ── Static page routes (extensionless URLs) ───────────────────────────────────
 app.get('/pricing',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'pricing.html')));
