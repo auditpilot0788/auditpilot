@@ -1021,7 +1021,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
     <p>We aim to respond within 2 business days.</p>
 
     <div class="stmt-section">Assessment Approach</div>
-    <p><span class="ph">[COMPANY NAME]</span> assessed this website using ${agencyBranding ? escapeHtml(agencyBranding.name) : 'AuditPilot'} and axe-core on ${scanDate}.
+    <p><span class="ph">[COMPANY NAME]</span> assessed this website using AuditPilot and axe-core on ${scanDate}.
     Accessibility score: <strong>${score}/100</strong>. EAA readiness: <strong>${eaaScore}/100 (${eaaRisk})</strong>.
     ${totalIssues} issue${totalIssues !== 1 ? 's' : ''} identified.</p>
 
