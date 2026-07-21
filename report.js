@@ -151,7 +151,7 @@ const EXPLANATIONS = {
   'video-caption': {
     summary: 'Video content does not provide captions for spoken audio.',
     whyItMatters: 'Deaf and hard-of-hearing users cannot access spoken content in videos without captions.',
-    businessImpact: 'Uncaptioned video excludes deaf users and may breach EAA media content requirements.',
+    businessImpact: 'Uncaptioned video excludes deaf users and may breach accessibility compliance requirements.',
     fix: 'Add a track element with a .vtt caption file to all video elements.',
     example: '<video controls>\n  <source src="intro.mp4" type="video/mp4">\n  <track kind="captions" src="captions.vtt"\n         srclang="en" label="English">\n</video>'
   },
@@ -453,15 +453,15 @@ function complianceDashboardHtml(score, eaaScore, eaaRisk) {
       </div>
       <div class="comp-card">
         <div class="comp-icon">&#9878;</div>
-        <div class="comp-title">EAA Readiness</div>
+        <div class="comp-title">Legal Risk</div>
         <span class="comp-badge" style="background:${eaaColor}">${eaaScore}/100</span>
-        <p class="comp-detail">European Accessibility Act readiness score, weighted for legal barrier severity (critical violations penalised 1.5× more).</p>
+        <p class="comp-detail">Legal risk score, weighted for legal barrier severity (critical violations penalised 1.5× more).</p>
       </div>
       <div class="comp-card">
         <div class="comp-icon">&#9888;</div>
         <div class="comp-title">Estimated Risk Level</div>
         <span class="comp-badge" style="background:${eaaColor}">${eaaRisk}</span>
-        <p class="comp-detail">Overall compliance risk based on violation severity profile and EAA enforcement exposure.</p>
+        <p class="comp-detail">Overall compliance risk based on violation severity profile and accessibility enforcement exposure.</p>
       </div>
     </div>`;
 }
@@ -808,7 +808,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
         <div class="eaa-num">${eaaScore}</div>
         <div class="eaa-denom">/ 100</div>
       </div>
-      <div class="score-label">EAA Readiness</div>
+      <div class="score-label">Legal Risk</div>
       <span class="eaa-risk-pill" style="background:${eaaColor}">${eaaRisk}</span>
     </div>
   </div>
@@ -839,7 +839,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
     </div>
     <div class="s-card" style="border-left:3px solid ${eaaColor}">
       <div class="s-num" style="color:${eaaColor}">${eaaScore}</div>
-      <div class="s-lbl">EAA Readiness</div>
+      <div class="s-lbl">Legal Risk</div>
     </div>
     <div class="s-card">
       <div class="s-num" style="color:#1a1a2e">${totalIssues}</div>
@@ -879,8 +879,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
   <div class="summary-note">
     This report was generated using axe-core against WCAG 2.1 A/AA and WCAG 2.2 AA standards.
     ${totalIssues > 0
-      ? `The scan identified <strong>${totalIssues} issue${totalIssues !== 1 ? 's' : ''}</strong>. EAA readiness score: <strong style="color:${eaaColor}">${eaaScore}/100 — ${eaaRisk}</strong>.`
-      : `<strong style="color:#16a34a">No accessibility violations detected.</strong> EAA readiness score: <strong>${eaaScore}/100 — ${eaaRisk}</strong>.`}
+      ? `The scan identified <strong>${totalIssues} issue${totalIssues !== 1 ? 's' : ''}</strong>. Legal risk score: <strong style="color:${eaaColor}">${eaaScore}/100 — ${eaaRisk}</strong>.`
+      : `<strong style="color:#16a34a">No accessibility violations detected.</strong> Legal risk score: <strong>${eaaScore}/100 — ${eaaRisk}</strong>.`}
     ${counts.critical > 0 ? `<strong style="color:#dc2626"> Immediate action required — ${counts.critical} critical issue${counts.critical !== 1 ? 's' : ''} found.</strong>` : ''}
   </div>
 </div>
@@ -895,7 +895,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
   </div>
 
   <h2 class="sec-title">Compliance Overview</h2>
-  <p class="sec-sub">WCAG 2.2 AA alignment, European Accessibility Act readiness, and estimated legal risk level.</p>
+  <p class="sec-sub">WCAG 2.2 AA alignment, legal risk score, and estimated legal risk level.</p>
 
   ${compSection}
 </div>
@@ -942,7 +942,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
       <div class="impact-title">Legal &amp; Compliance Risk</div>
       <div class="impact-text">
         The European Accessibility Act (EAA) and WCAG 2.2 AA require websites to be accessible.
-        This site's EAA readiness score of <strong>${eaaScore}/100</strong> indicates
+        This site's legal risk score of <strong>${eaaScore}/100</strong> indicates
         <strong style="color:${eaaColor}">${eaaRisk}</strong> exposure.
         ${counts.critical > 0 ? 'Critical violations require immediate remediation to reduce regulatory liability.' : 'No critical violations were detected.'}
       </div>
@@ -1022,7 +1022,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a2e;background:#fff;font-
 
     <div class="stmt-section">Assessment Approach</div>
     <p><span class="ph">[COMPANY NAME]</span> assessed this website using AuditPilot and axe-core on ${scanDate}.
-    Accessibility score: <strong>${score}/100</strong>. EAA readiness: <strong>${eaaScore}/100 (${eaaRisk})</strong>.
+    Accessibility score: <strong>${score}/100</strong>. Legal risk: <strong>${eaaScore}/100 (${eaaRisk})</strong>.
     ${totalIssues} issue${totalIssues !== 1 ? 's' : ''} identified.</p>
 
     <p style="margin-top:14px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:10px;color:#9ca3af">

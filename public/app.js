@@ -235,7 +235,7 @@
       </div>
       <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px 18px;">
         <div style="font-size:30px;font-weight:800;color:${eColor};line-height:1;">${data.eaaScore}<span style="font-size:13px;color:rgba(255,255,255,0.35);font-weight:400;">/100</span></div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.8px;margin-top:6px;">EAA Readiness · ${escHtml(data.eaaRisk)}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.8px;margin-top:6px;">Legal Risk · ${escHtml(data.eaaRisk)}</div>
       </div>`;
 
     previewTotalEl.textContent = `${data.totalIssues} issue${data.totalIssues !== 1 ? 's' : ''}`;
